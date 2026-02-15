@@ -22,6 +22,8 @@ public:
     // 获取最新的游戏状态 (线程安全)
     game::GameSnapshot GetState();
 
+    int GetMyID() { return my_player_id_; }
+
 private:
     NetworkClient() : socket_(io_context_) {}
 
@@ -35,4 +37,5 @@ private:
     // 数据保护
     std::mutex data_mutex_;
     game::GameSnapshot current_snapshot_;
+    int  my_player_id_ = -1;
 };

@@ -212,17 +212,30 @@ void SceneMain::handleEvent(SDL_Event *event)
 
 void SceneMain::update(float deltaTime)
 {
+    // 1. 本地控制 (发送按键)
    this->keyboardControl( deltaTime);
-   // ================= [新增] 网络同步代码开始 =================
+   // ================= 网络同步代码开始 =================
 
     // 获取服务器发来的最新状态
    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
+   int myID = NetworkClient::GetInstance().GetMyID();
+
+
    for (const auto& server_player : state.players())
    {
-       if(server_player.id() == 1)
+       int pid = server_player.id();
+       if (pid == myID)
        {
+           // --- 情况一：这是我！同步给本地主角 ---
            this->player.position.x = server_player.x();
            this->player.position.y = server_player.y();
+       }
+       else
+       {
+           // --- 情况二：这是别人！存到 otherPlayers 列表里 ---
+            // map 会自动处理：如果 ID 不存在就创建，存在就更新
+           other_players[pid].x = server_player.x();
+           other_players[pid].y = server_player.y();
        }
    }
    this->updateProjectilePlayer(deltaTime);
@@ -247,12 +260,28 @@ void SceneMain::render()
     //渲染敌人子弹
     this->renderProjectileEnemy();
     //渲染玩家
+    // --- 1. 渲染我自己 (Local Player) ---
     if(!isDead){
     SDL_Rect playerRect={static_cast<int> (player.position.x),
                          static_cast<int>(player.position.y),
                          player.width,
                          player.height};
     SDL_RenderCopy(game.getRenderer(),player.texture,NULL,&playerRect); 
+    }
+    // --- 2. [新增] 渲染其他玩家 (Remote Players) ---
+    for (auto& pair : other_players)
+    {
+        int id = pair.first;
+        RemotePlayer& p = pair.second;
+
+        SDL_Rect otherRect = {
+            static_cast<int>(p.x),
+            static_cast<int>(p.y),
+            player.width,  // 暂时假设大家大小一样
+            player.height
+        };
+        SDL_SetTextureColorMod(player.texture, 255, 100, 100);
+        SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &otherRect);
     }
     //渲染敌人
     this->renderEnemy();

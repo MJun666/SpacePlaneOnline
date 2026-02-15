@@ -6,6 +6,19 @@ bool NetworkClient::Connect(std::string ip, int port) {
         tcp::resolver resolver(io_context_);
         boost::asio::connect(socket_, resolver.resolve(ip, std::to_string(port)));
 
+        // === [新增] 阻塞接收第一条消息 (ID) ===
+		char data[1024];
+		boost::system::error_code error;
+		size_t len = socket_.read_some(boost::asio::buffer(data), error);
+
+        game::LoginResponse login;
+        if (!error && login.ParseFromArray(data, len))
+        {
+            my_player_id_ = login.your_id();
+            std::cout << "[Network] Logged in! My ID: " << my_player_id_ << std::endl;
+        }
+        // ======================================
+
         // 连接成功后，启动接收线程
         receive_thread_ = std::thread(&NetworkClient::ReceiveThread, this);
         receive_thread_.detach(); // 让它在后台跑

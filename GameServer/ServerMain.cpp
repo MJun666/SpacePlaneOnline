@@ -39,6 +39,20 @@ void session(std::shared_ptr<tcp::socket> socket)
 
 		}
 		std::cout << "[Server] Player " << my_id << " joined!" << std::endl;
+		// === [新增] 发送登录响应 ===
+		game::LoginResponse login_msg;
+		login_msg.set_your_id(my_id);
+		login_msg.set_init_x(400.0f); // 默认位置
+		login_msg.set_init_y(300.0f);
+
+		std::string data;
+		login_msg.SerializeToString(&data);
+
+		// 发送 ID 给客户端
+		boost::asio::write(*socket, boost::asio::buffer(data));
+		std::cout << "[Server] Sent ID " << my_id << " to client." << std::endl;
+		// ============================
+
 		// 2. 循环接收数据
 		while (true)
 		{

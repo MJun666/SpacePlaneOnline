@@ -8,6 +8,11 @@
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_mixer.h>
 #include<SDL2/SDL_ttf.h>
+// 简单的结构体存储其他玩家位置
+struct RemotePlayer {
+    float x, y;
+    int id;
+};
 class Game;
 
 class SceneMain : public Scene
@@ -28,11 +33,13 @@ class SceneMain : public Scene
     SDL_Texture* uiHealth;
     TTF_Font* scoreFont;
     int score=0;
-  float timerEnd=0.0f;
+    float timerEnd=0.0f;
 
     bool isDead=false;
     std::mt19937 gen;//随机数引擎
     std::uniform_real_distribution<float> dis;//随机数分布
+    std::map<int, RemotePlayer> other_players; // 存储所有的敌人/队友
+
     //创建每个物体模板
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
