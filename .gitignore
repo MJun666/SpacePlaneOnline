@@ -361,3 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# vcpkg
+vcpkg_installed/
+*.applocal.log
+
+# 游戏存档和用户数据
+*.dat
+save.dat
+
+# Protocol Buffers 生成的文件（如果需要的话可以注释掉）
+# *.pb.cc
+# *.pb.h
