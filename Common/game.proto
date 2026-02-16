@@ -32,7 +32,16 @@ message PlayerState {
 }
 
 // 3. 游戏世界快照 (服务端 -> 客户端)
-// 服务器每帧把这个发给所有客户端，客户端收到后根据这个画图
+// [新增] 子弹定义
+message BulletState {
+    int32 id = 1;
+    float x = 2;
+    float y = 3;
+    int32 type = 4; // 0=玩家子弹, 1=敌机子弹
+}
+
+// 修改快照，加入子弹列表
 message GameSnapshot {
     repeated PlayerState players = 1;
+    repeated BulletState bullets = 2; // [新增] 这里存所有子弹
 }

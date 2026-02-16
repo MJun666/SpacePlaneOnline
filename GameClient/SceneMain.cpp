@@ -51,6 +51,7 @@ void SceneMain::init()
     SDL_QueryTexture(player.texture,NULL,NULL,&player.width,&player.height);
     player.width/=5;
     player.height/=5;
+    std::cout << "[DEBUG] Player width: " << player.width << ", height: " << player.height << std::endl;
     player.position.x=game.getWindowWidth()/2-player.width/2;
     player.position.y=game.getWindowHeight()-player.height;
 
@@ -59,6 +60,7 @@ void SceneMain::init()
     SDL_QueryTexture(projectilePlayerTemplate.texture,NULL,NULL,&projectilePlayerTemplate.width,&projectilePlayerTemplate.height);
     projectilePlayerTemplate.width/=4;
     projectilePlayerTemplate.height/=4;
+    std::cout << "[DEBUG] Bullet width: " << projectilePlayerTemplate.width << ", height: " << projectilePlayerTemplate.height << std::endl;
 
     enemyTemplate.texture=IMG_LoadTexture(game.getRenderer(),"assets/image/insect-2.png");
     SDL_QueryTexture(enemyTemplate.texture,NULL,NULL,&enemyTemplate.width,&enemyTemplate.height);
@@ -255,12 +257,14 @@ void SceneMain::update(float deltaTime)
 void SceneMain::render()
 {
      //渲染玩家子弹
-     this->renderProjectilePlayer();
-
+    // this->renderProjectilePlayer();
+    
+    //  渲染网络子弹 (替代了原本的 renderProjectilePlayer)
+    this->renderNetworkBullets();
     //渲染敌人子弹
     this->renderProjectileEnemy();
     //渲染玩家
-    // --- 1. 渲染我自己 (Local Player) ---
+    // --- 渲染我自己 (Local Player) ---
     if(!isDead){
     SDL_Rect playerRect={static_cast<int> (player.position.x),
                          static_cast<int>(player.position.y),
@@ -268,7 +272,7 @@ void SceneMain::render()
                          player.height};
     SDL_RenderCopy(game.getRenderer(),player.texture,NULL,&playerRect); 
     }
-    // --- 2. [新增] 渲染其他玩家 (Remote Players) ---
+    // ---  渲染其他玩家 (Remote Players) ---
     for (auto& pair : other_players)
     {
         int id = pair.first;
@@ -730,6 +734,103 @@ void SceneMain::renderUi()
     SDL_DestroyTexture(texture);
 
 
+}
+
+void SceneMain::renderRemotePlayers()
+{
+    // 遍历所有其他玩家
+    for (auto& pair : other_players)
+    {
+        RemotePlayer& p = pair.second;
+
+        SDL_Rect otherRect = {
+            static_cast<int>(p.x),
+            static_cast<int>(p.y),
+            player.width,  // 假设大家飞机大小一样
+            player.height
+        };
+
+        // 变成淡红色，区分敌我
+        SDL_SetTextureColorMod(player.texture, 255, 100, 100);
+
+        // 绘制
+        SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &otherRect);
+
+        // 【重要】画完后把颜色还原回来！否则你自己也会变红
+        SDL_SetTextureColorMod(player.texture, 255, 255, 255);
+    }
+}
+
+//void SceneMain::renderNetworkBullets()
+//{
+//    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
+//    for (const auto& bullet : state.bullets())
+//    {
+//        SDL_Texture* textureToDraw = nullptr;
+//        int w = 0, h = 0;
+//        float angle = 0.0f;
+//
+//        // 根据类型选择贴图
+//        if (bullet.type() == 0) {
+//            SDL_Rect dst = {
+//                static_cast<int>(bullet.x()),
+//                static_cast<int>(bullet.y()),
+//                w, h
+//            };
+//            SDL_RenderCopy(game.getRenderer(), textureToDraw, NULL, &dst);
+//        }
+//        else if (bullet.type() == 1) {
+//            // 敌人子弹：复用原本的敌人子弹图
+//            textureToDraw = projectileEnemyTemplate.texture;
+//            w = projectileEnemyTemplate.width;
+//            h = projectileEnemyTemplate.height;
+//            angle = 180.0f; // 敌人子弹倒过来画
+//        }
+//    }
+//}
+void SceneMain::renderNetworkBullets()
+{
+    // 获取最新网络状态
+    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
+
+    for (const auto& bullet : state.bullets())
+    {
+        SDL_Texture* textureToDraw = nullptr;
+        int w = 0, h = 0;
+        float angle = 0.0f;
+
+        // 根据类型选择贴图
+        if (bullet.type() == 0) {
+            // 玩家子弹：复用原本的激光图
+            textureToDraw = projectilePlayerTemplate.texture;
+            w = projectilePlayerTemplate.width;
+            h = projectilePlayerTemplate.height;
+        }
+        else if (bullet.type() == 1) {
+            // 敌人子弹：复用原本的敌人子弹图
+            textureToDraw = projectileEnemyTemplate.texture;
+            w = projectileEnemyTemplate.width;
+            h = projectileEnemyTemplate.height;
+            angle = 180.0f; // 敌人子弹倒过来画
+        }
+
+        // 只要找到了贴图，就画出来
+        if (textureToDraw) {
+            SDL_Rect dst = {
+                static_cast<int>(bullet.x()),
+                static_cast<int>(bullet.y()),
+                w, h
+            };
+
+            // 带角度的绘制 (RenderCopyEx)
+            if (angle != 0.0f) {
+                SDL_RenderCopyEx(game.getRenderer(), textureToDraw, NULL, &dst, angle, NULL, SDL_FLIP_NONE);
+            }
+            else {
+                SDL_RenderCopy(game.getRenderer(), textureToDraw, NULL, &dst);
+            }
+        }
+    }
 }
 
 void SceneMain::enemyExplode(Enemy *enemy)

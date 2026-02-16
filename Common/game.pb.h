@@ -53,6 +53,9 @@ struct TableStruct_game_2eproto {
 extern const ::google::protobuf::internal::DescriptorTable
     descriptor_table_game_2eproto;
 namespace game {
+class BulletState;
+struct BulletStateDefaultTypeInternal;
+extern BulletStateDefaultTypeInternal _BulletState_default_instance_;
 class GameSnapshot;
 struct GameSnapshotDefaultTypeInternal;
 extern GameSnapshotDefaultTypeInternal _GameSnapshot_default_instance_;
@@ -780,6 +783,232 @@ class LoginResponse final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class BulletState final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:game.BulletState) */ {
+ public:
+  inline BulletState() : BulletState(nullptr) {}
+  ~BulletState() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(BulletState* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(BulletState));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR BulletState(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline BulletState(const BulletState& from) : BulletState(nullptr, from) {}
+  inline BulletState(BulletState&& from) noexcept
+      : BulletState(nullptr, std::move(from)) {}
+  inline BulletState& operator=(const BulletState& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline BulletState& operator=(BulletState&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const BulletState& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const BulletState* internal_default_instance() {
+    return reinterpret_cast<const BulletState*>(
+        &_BulletState_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 3;
+  friend void swap(BulletState& a, BulletState& b) { a.Swap(&b); }
+  inline void Swap(BulletState* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(BulletState* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  BulletState* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<BulletState>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const BulletState& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const BulletState& from) { BulletState::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(BulletState* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "game.BulletState"; }
+
+ protected:
+  explicit BulletState(::google::protobuf::Arena* arena);
+  BulletState(::google::protobuf::Arena* arena, const BulletState& from);
+  BulletState(::google::protobuf::Arena* arena, BulletState&& from) noexcept
+      : BulletState(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kIdFieldNumber = 1,
+    kXFieldNumber = 2,
+    kYFieldNumber = 3,
+    kTypeFieldNumber = 4,
+  };
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // float x = 2;
+  void clear_x() ;
+  float x() const;
+  void set_x(float value);
+
+  private:
+  float _internal_x() const;
+  void _internal_set_x(float value);
+
+  public:
+  // float y = 3;
+  void clear_y() ;
+  float y() const;
+  void set_y(float value);
+
+  private:
+  float _internal_y() const;
+  void _internal_set_y(float value);
+
+  public:
+  // int32 type = 4;
+  void clear_type() ;
+  ::int32_t type() const;
+  void set_type(::int32_t value);
+
+  private:
+  ::int32_t _internal_type() const;
+  void _internal_set_type(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:game.BulletState)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      2, 4, 0,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const BulletState& from_msg);
+    ::int32_t id_;
+    float x_;
+    float y_;
+    ::int32_t type_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_game_2eproto;
+};
+// -------------------------------------------------------------------
+
 class GameSnapshot final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:game.GameSnapshot) */ {
  public:
@@ -839,7 +1068,7 @@ class GameSnapshot final : public ::google::protobuf::Message
     return reinterpret_cast<const GameSnapshot*>(
         &_GameSnapshot_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 3;
+  static constexpr int kIndexInFileMessages = 4;
   friend void swap(GameSnapshot& a, GameSnapshot& b) { a.Swap(&b); }
   inline void Swap(GameSnapshot* other) {
     if (other == this) return;
@@ -927,6 +1156,7 @@ class GameSnapshot final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kPlayersFieldNumber = 1,
+    kBulletsFieldNumber = 2,
   };
   // repeated .game.PlayerState players = 1;
   int players_size() const;
@@ -945,12 +1175,29 @@ class GameSnapshot final : public ::google::protobuf::Message
   const ::game::PlayerState& players(int index) const;
   ::game::PlayerState* add_players();
   const ::google::protobuf::RepeatedPtrField<::game::PlayerState>& players() const;
+  // repeated .game.BulletState bullets = 2;
+  int bullets_size() const;
+  private:
+  int _internal_bullets_size() const;
+
+  public:
+  void clear_bullets() ;
+  ::game::BulletState* mutable_bullets(int index);
+  ::google::protobuf::RepeatedPtrField<::game::BulletState>* mutable_bullets();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::game::BulletState>& _internal_bullets() const;
+  ::google::protobuf::RepeatedPtrField<::game::BulletState>* _internal_mutable_bullets();
+  public:
+  const ::game::BulletState& bullets(int index) const;
+  ::game::BulletState* add_bullets();
+  const ::google::protobuf::RepeatedPtrField<::game::BulletState>& bullets() const;
   // @@protoc_insertion_point(class_scope:game.GameSnapshot)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 1,
+      1, 2, 2,
       0, 2>
       _table_;
 
@@ -969,6 +1216,7 @@ class GameSnapshot final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const GameSnapshot& from_msg);
     ::google::protobuf::RepeatedPtrField< ::game::PlayerState > players_;
+    ::google::protobuf::RepeatedPtrField< ::game::BulletState > bullets_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1200,6 +1448,98 @@ inline void PlayerState::_internal_set_angle(float value) {
 
 // -------------------------------------------------------------------
 
+// BulletState
+
+// int32 id = 1;
+inline void BulletState::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+}
+inline ::int32_t BulletState::id() const {
+  // @@protoc_insertion_point(field_get:game.BulletState.id)
+  return _internal_id();
+}
+inline void BulletState::set_id(::int32_t value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:game.BulletState.id)
+}
+inline ::int32_t BulletState::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void BulletState::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// float x = 2;
+inline void BulletState::clear_x() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.x_ = 0;
+}
+inline float BulletState::x() const {
+  // @@protoc_insertion_point(field_get:game.BulletState.x)
+  return _internal_x();
+}
+inline void BulletState::set_x(float value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:game.BulletState.x)
+}
+inline float BulletState::_internal_x() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.x_;
+}
+inline void BulletState::_internal_set_x(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.x_ = value;
+}
+
+// float y = 3;
+inline void BulletState::clear_y() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.y_ = 0;
+}
+inline float BulletState::y() const {
+  // @@protoc_insertion_point(field_get:game.BulletState.y)
+  return _internal_y();
+}
+inline void BulletState::set_y(float value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:game.BulletState.y)
+}
+inline float BulletState::_internal_y() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.y_;
+}
+inline void BulletState::_internal_set_y(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.y_ = value;
+}
+
+// int32 type = 4;
+inline void BulletState::clear_type() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.type_ = 0;
+}
+inline ::int32_t BulletState::type() const {
+  // @@protoc_insertion_point(field_get:game.BulletState.type)
+  return _internal_type();
+}
+inline void BulletState::set_type(::int32_t value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:game.BulletState.type)
+}
+inline ::int32_t BulletState::_internal_type() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.type_;
+}
+inline void BulletState::_internal_set_type(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.type_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // GameSnapshot
 
 // repeated .game.PlayerState players = 1;
@@ -1249,6 +1589,55 @@ inline ::google::protobuf::RepeatedPtrField<::game::PlayerState>*
 GameSnapshot::_internal_mutable_players() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.players_;
+}
+
+// repeated .game.BulletState bullets = 2;
+inline int GameSnapshot::_internal_bullets_size() const {
+  return _internal_bullets().size();
+}
+inline int GameSnapshot::bullets_size() const {
+  return _internal_bullets_size();
+}
+inline void GameSnapshot::clear_bullets() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.bullets_.Clear();
+}
+inline ::game::BulletState* GameSnapshot::mutable_bullets(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:game.GameSnapshot.bullets)
+  return _internal_mutable_bullets()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::game::BulletState>* GameSnapshot::mutable_bullets()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:game.GameSnapshot.bullets)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_bullets();
+}
+inline const ::game::BulletState& GameSnapshot::bullets(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game.GameSnapshot.bullets)
+  return _internal_bullets().Get(index);
+}
+inline ::game::BulletState* GameSnapshot::add_bullets() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::game::BulletState* _add = _internal_mutable_bullets()->Add();
+  // @@protoc_insertion_point(field_add:game.GameSnapshot.bullets)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::game::BulletState>& GameSnapshot::bullets() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:game.GameSnapshot.bullets)
+  return _internal_bullets();
+}
+inline const ::google::protobuf::RepeatedPtrField<::game::BulletState>&
+GameSnapshot::_internal_bullets() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.bullets_;
+}
+inline ::google::protobuf::RepeatedPtrField<::game::BulletState>*
+GameSnapshot::_internal_mutable_bullets() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.bullets_;
 }
 
 #ifdef __GNUC__

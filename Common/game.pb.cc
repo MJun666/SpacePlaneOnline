@@ -107,9 +107,38 @@ struct LoginResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
 
+inline constexpr BulletState::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : id_{0},
+        x_{0},
+        y_{0},
+        type_{0},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR BulletState::BulletState(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct BulletStateDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR BulletStateDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~BulletStateDefaultTypeInternal() {}
+  union {
+    BulletState _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 BulletStateDefaultTypeInternal _BulletState_default_instance_;
+
 inline constexpr GameSnapshot::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : players_{},
+        bullets_{},
         _cached_size_{0} {}
 
 template <typename>
@@ -172,6 +201,18 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::game::PlayerState, _impl_.y_),
         PROTOBUF_FIELD_OFFSET(::game::PlayerState, _impl_.angle_),
         ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::game::BulletState, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.x_),
+        PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.y_),
+        PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.type_),
+        ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
@@ -180,6 +221,7 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _impl_.players_),
+        PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _impl_.bullets_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -187,12 +229,14 @@ static const ::_pbi::MigrationSchema
         {0, -1, -1, sizeof(::game::LoginResponse)},
         {11, -1, -1, sizeof(::game::PlayerInput)},
         {21, -1, -1, sizeof(::game::PlayerState)},
-        {33, -1, -1, sizeof(::game::GameSnapshot)},
+        {33, -1, -1, sizeof(::game::BulletState)},
+        {45, -1, -1, sizeof(::game::GameSnapshot)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::game::_LoginResponse_default_instance_._instance,
     &::game::_PlayerInput_default_instance_._instance,
     &::game::_PlayerState_default_instance_._instance,
+    &::game::_BulletState_default_instance_._instance,
     &::game::_GameSnapshot_default_instance_._instance,
 };
 const char descriptor_table_protodef_game_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -204,20 +248,23 @@ const char descriptor_table_protodef_game_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     "ype\"F\n\tInputType\022\010\n\004NONE\020\000\022\006\n\002UP\020\001\022\010\n\004DO"
     "WN\020\002\022\010\n\004LEFT\020\003\022\t\n\005RIGHT\020\004\022\010\n\004FIRE\020\005\">\n\013P"
     "layerState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003"
-    " \001(\002\022\r\n\005angle\030\004 \001(\002\"2\n\014GameSnapshot\022\"\n\007p"
-    "layers\030\001 \003(\0132\021.game.PlayerStateb\006proto3"
+    " \001(\002\022\r\n\005angle\030\004 \001(\002\"=\n\013BulletState\022\n\n\002id"
+    "\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001"
+    "(\005\"V\n\014GameSnapshot\022\"\n\007players\030\001 \003(\0132\021.ga"
+    "me.PlayerState\022\"\n\007bullets\030\002 \003(\0132\021.game.B"
+    "ulletStateb\006proto3"
 };
 static ::absl::once_flag descriptor_table_game_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_game_2eproto = {
     false,
     false,
-    359,
+    458,
     descriptor_table_protodef_game_2eproto,
     "game.proto",
     &descriptor_table_game_2eproto_once,
     nullptr,
     0,
-    4,
+    5,
     schemas,
     file_default_instances,
     TableStruct_game_2eproto::offsets,
@@ -1033,6 +1080,287 @@ void PlayerState::InternalSwap(PlayerState* PROTOBUF_RESTRICT other) {
 }
 // ===================================================================
 
+class BulletState::_Internal {
+ public:
+};
+
+BulletState::BulletState(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:game.BulletState)
+}
+BulletState::BulletState(
+    ::google::protobuf::Arena* arena, const BulletState& from)
+    : BulletState(arena) {
+  MergeFrom(from);
+}
+inline PROTOBUF_NDEBUG_INLINE BulletState::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void BulletState::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, type_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::type_));
+}
+BulletState::~BulletState() {
+  // @@protoc_insertion_point(destructor:game.BulletState)
+  SharedDtor(*this);
+}
+inline void BulletState::SharedDtor(MessageLite& self) {
+  BulletState& this_ = static_cast<BulletState&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* BulletState::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) BulletState(arena);
+}
+constexpr auto BulletState::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(BulletState),
+                                            alignof(BulletState));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull BulletState::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_BulletState_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &BulletState::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<BulletState>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &BulletState::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<BulletState>(), &BulletState::ByteSizeLong,
+            &BulletState::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(BulletState, _impl_._cached_size_),
+        false,
+    },
+    &BulletState::kDescriptorMethods,
+    &descriptor_table_game_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* BulletState::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2> BulletState::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    4, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967280,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    4,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::game::BulletState>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // int32 type = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(BulletState, _impl_.type_), 63>(),
+     {32, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(BulletState, _impl_.id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.id_)}},
+    // float x = 2;
+    {::_pbi::TcParser::FastF32S1,
+     {21, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.x_)}},
+    // float y = 3;
+    {::_pbi::TcParser::FastF32S1,
+     {29, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.y_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(BulletState, _impl_.id_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // float x = 2;
+    {PROTOBUF_FIELD_OFFSET(BulletState, _impl_.x_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
+    // float y = 3;
+    {PROTOBUF_FIELD_OFFSET(BulletState, _impl_.y_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
+    // int32 type = 4;
+    {PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+PROTOBUF_NOINLINE void BulletState::Clear() {
+// @@protoc_insertion_point(message_clear_start:game.BulletState)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.type_) -
+      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.type_));
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* BulletState::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const BulletState& this_ = static_cast<const BulletState&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* BulletState::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const BulletState& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:game.BulletState)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // int32 id = 1;
+          if (this_._internal_id() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<1>(
+                    stream, this_._internal_id(), target);
+          }
+
+          // float x = 2;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_x()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                2, this_._internal_x(), target);
+          }
+
+          // float y = 3;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_y()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                3, this_._internal_y(), target);
+          }
+
+          // int32 type = 4;
+          if (this_._internal_type() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<4>(
+                    stream, this_._internal_type(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:game.BulletState)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t BulletState::ByteSizeLong(const MessageLite& base) {
+          const BulletState& this_ = static_cast<const BulletState&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t BulletState::ByteSizeLong() const {
+          const BulletState& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:game.BulletState)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // int32 id = 1;
+            if (this_._internal_id() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_id());
+            }
+            // float x = 2;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_x()) != 0) {
+              total_size += 5;
+            }
+            // float y = 3;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_y()) != 0) {
+              total_size += 5;
+            }
+            // int32 type = 4;
+            if (this_._internal_type() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_type());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void BulletState::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<BulletState*>(&to_msg);
+  auto& from = static_cast<const BulletState&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:game.BulletState)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_id() != 0) {
+    _this->_impl_.id_ = from._impl_.id_;
+  }
+  if (::absl::bit_cast<::uint32_t>(from._internal_x()) != 0) {
+    _this->_impl_.x_ = from._impl_.x_;
+  }
+  if (::absl::bit_cast<::uint32_t>(from._internal_y()) != 0) {
+    _this->_impl_.y_ = from._impl_.y_;
+  }
+  if (from._internal_type() != 0) {
+    _this->_impl_.type_ = from._impl_.type_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void BulletState::CopyFrom(const BulletState& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:game.BulletState)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void BulletState::InternalSwap(BulletState* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_)
+      + sizeof(BulletState::_impl_.type_)
+      - PROTOBUF_FIELD_OFFSET(BulletState, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
+}
+
+::google::protobuf::Metadata BulletState::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class GameSnapshot::_Internal {
  public:
 };
@@ -1050,6 +1378,7 @@ inline PROTOBUF_NDEBUG_INLINE GameSnapshot::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
     const Impl_& from, const ::game::GameSnapshot& from_msg)
       : players_{visibility, arena, from.players_},
+        bullets_{visibility, arena, from.bullets_},
         _cached_size_{0} {}
 
 GameSnapshot::GameSnapshot(
@@ -1072,6 +1401,7 @@ inline PROTOBUF_NDEBUG_INLINE GameSnapshot::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
       : players_{visibility, arena},
+        bullets_{visibility, arena},
         _cached_size_{0} {}
 
 inline void GameSnapshot::SharedCtor(::_pb::Arena* arena) {
@@ -1096,6 +1426,10 @@ constexpr auto GameSnapshot::InternalNewImpl_() {
   constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
       PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.players_) +
           decltype(GameSnapshot::_impl_.players_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+      PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_) +
+          decltype(GameSnapshot::_impl_.bullets_)::
               InternalGetArenaOffset(
                   ::google::protobuf::Message::internal_visibility()),
   });
@@ -1136,16 +1470,16 @@ const ::google::protobuf::internal::ClassData* GameSnapshot::GetClassData() cons
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GameSnapshot::_table_ = {
+const ::_pbi::TcParseTable<1, 2, 2, 0, 2> GameSnapshot::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
-    1,  // num_aux_entries
+    2,  // num_field_entries
+    2,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
     nullptr,  // post_loop_handler
@@ -1154,6 +1488,9 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GameSnapshot::_table_ = {
     ::_pbi::TcParser::GetTable<::game::GameSnapshot>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
+    // repeated .game.BulletState bullets = 2;
+    {::_pbi::TcParser::FastMtR1,
+     {18, 63, 1, PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_)}},
     // repeated .game.PlayerState players = 1;
     {::_pbi::TcParser::FastMtR1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.players_)}},
@@ -1163,8 +1500,12 @@ const ::_pbi::TcParseTable<0, 1, 1, 0, 2> GameSnapshot::_table_ = {
     // repeated .game.PlayerState players = 1;
     {PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.players_), 0, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .game.BulletState bullets = 2;
+    {PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_), 0, 1,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
     {::_pbi::TcParser::GetTable<::game::PlayerState>()},
+    {::_pbi::TcParser::GetTable<::game::BulletState>()},
   }}, {{
   }},
 };
@@ -1177,6 +1518,7 @@ PROTOBUF_NOINLINE void GameSnapshot::Clear() {
   (void) cached_has_bits;
 
   _impl_.players_.Clear();
+  _impl_.bullets_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -1203,6 +1545,17 @@ PROTOBUF_NOINLINE void GameSnapshot::Clear() {
             target =
                 ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                     1, repfield, repfield.GetCachedSize(),
+                    target, stream);
+          }
+
+          // repeated .game.BulletState bullets = 2;
+          for (unsigned i = 0, n = static_cast<unsigned>(
+                                   this_._internal_bullets_size());
+               i < n; i++) {
+            const auto& repfield = this_._internal_bullets().Get(i);
+            target =
+                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                    2, repfield, repfield.GetCachedSize(),
                     target, stream);
           }
 
@@ -1238,6 +1591,13 @@ PROTOBUF_NOINLINE void GameSnapshot::Clear() {
                 total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
               }
             }
+            // repeated .game.BulletState bullets = 2;
+            {
+              total_size += 1UL * this_._internal_bullets_size();
+              for (const auto& msg : this_._internal_bullets()) {
+                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+              }
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -1253,6 +1613,8 @@ void GameSnapshot::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::go
 
   _this->_internal_mutable_players()->MergeFrom(
       from._internal_players());
+  _this->_internal_mutable_bullets()->MergeFrom(
+      from._internal_bullets());
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1268,6 +1630,7 @@ void GameSnapshot::InternalSwap(GameSnapshot* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.players_.InternalSwap(&other->_impl_.players_);
+  _impl_.bullets_.InternalSwap(&other->_impl_.bullets_);
 }
 
 ::google::protobuf::Metadata GameSnapshot::GetMetadata() const {
