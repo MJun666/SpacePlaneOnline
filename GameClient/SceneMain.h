@@ -76,6 +76,8 @@ class SceneMain : public Scene
     // ===  封装好的网络渲染函数 ===
     void renderRemotePlayers();  // 画其他玩家
     void renderNetworkBullets(); // 画网络子弹
+    void renderNetworkEnemies();// 画网络敌机 
+
     //其他
     void keyboardControl(float deltaTime);
     void shootPlayer();

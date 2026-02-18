@@ -240,10 +240,11 @@ void SceneMain::update(float deltaTime)
            other_players[pid].y = server_player.y();
        }
    }
-   this->updateProjectilePlayer(deltaTime);
+  /* this->updateProjectilePlayer(deltaTime);
   this->updateProjectileEnemy(deltaTime);
    this->spewEnemy();
-   this->updateEnemy(deltaTime);
+   this->updateEnemy(deltaTime);*/
+
    this->updatePlayer(deltaTime);
     this->updateExplosion(deltaTime);
    this->updateItems(deltaTime);
@@ -262,7 +263,7 @@ void SceneMain::render()
     //  渲染网络子弹 (替代了原本的 renderProjectilePlayer)
     this->renderNetworkBullets();
     //渲染敌人子弹
-    this->renderProjectileEnemy();
+   /* this->renderProjectileEnemy();*/
     //渲染玩家
     // --- 渲染我自己 (Local Player) ---
     if(!isDead){
@@ -288,8 +289,8 @@ void SceneMain::render()
         SDL_RenderCopy(game.getRenderer(), player.texture, NULL, &otherRect);
     }
     //渲染敌人
-    this->renderEnemy();
-    
+   /* this->renderEnemy();*/
+	this->renderNetworkEnemies();
     //渲染物品
     this->renderItems();
 
@@ -830,6 +831,23 @@ void SceneMain::renderNetworkBullets()
                 SDL_RenderCopy(game.getRenderer(), textureToDraw, NULL, &dst);
             }
         }
+    }
+}
+
+void SceneMain::renderNetworkEnemies()
+{
+    // 1. 获取最新快照
+    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
+    // 2. 遍历所有敌机
+    for (const auto& enemy : state.enemies())
+    {
+
+        SDL_Rect dst = { static_cast<int>(enemy.x()),
+                                static_cast<int>(enemy.y()),
+                             enemyTemplate.width,
+                               enemyTemplate.height };
+        // 3. 绘制
+        SDL_RenderCopy(game.getRenderer(), enemyTemplate.texture, NULL, &dst);
     }
 }
 

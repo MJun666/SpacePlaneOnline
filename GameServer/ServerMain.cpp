@@ -4,6 +4,8 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include<random>
+#include<cmath>
 #include <boost/asio.hpp>
 #include "game.pb.h"
 
@@ -20,13 +22,18 @@ const int PLAYER_SHOOT_COOLDOWN = 300; // Object.h: Cooldown=300
 const int PLAYER_BULLET_SPEED = 600;   // Object.h: ProjectilePlayer speed=600
 const int SERVER_TICK_MS = 33;         // 服务器每帧耗时
 
-// 实际尺寸 (从客户端 [DEBUG] 输出获取)
-// Player width: 48, height: 37
-// Bullet width: 20, height: 31
+
+
 const int PLAYER_WIDTH_ESTIMATE = 48;
 const int PLAYER_HEIGHT_ESTIMATE = 37;
 const int BULLET_WIDTH_ESTIMATE = 20;
 const int BULLET_HEIGHT_ESTIMATE = 31;
+
+// 敌机参数
+const int ENEMY_WIDTH = 64;   
+const int ENEMY_HEIGHT = 64;
+const int ENEMY_SPEED = 200; 
+const int ENEMY_SPAWN_RATE = 60; 
 // ==========================================
 
 struct Player
@@ -43,17 +50,56 @@ struct Player
 struct Bullet {
     int id;
     float x, y;
+    float vx, vy;
     int type; // 0=玩家, 1=敌人
+};
+
+struct Enemy
+{
+    int id; 
+	float x, y;
+    std::chrono::steady_clock::time_point last_shoot_time;
+
 };
 
 // 全局变量
 std::mutex g_mutex;
 std::map<int, std::shared_ptr<Player>> g_players;
+std::vector<Enemy> g_enemies;
 std::vector<Bullet> g_bullets;
+
 int g_next_id = 1;
 int g_bullet_next_id = 1;
+int g_enemy_next_id = 1;
 
-// --- 1. 处理客户端连接 ---
+// 随机数
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<float>  dis(0.0f,1.0f);  
+
+
+// --- 辅助：寻找最近的玩家 ---
+std::shared_ptr<Player>GetNearestPlayer(float ex, float ey)
+{
+	std::shared_ptr<Player> target = nullptr;
+    float min_dist = 1000000.0f;
+    for (auto& pair : g_players)
+    {
+		float dx = pair.second->x - ex;
+		float dy = pair.second->y - ey;
+		float dist = dx * dx + dy * dy; // 距离的平方
+        if (min_dist > dist)
+        {
+            min_dist = dist;
+			target = pair.second;
+        }
+    }
+
+    return target;
+}
+
+
+// ---  处理客户端连接 ---
 void session(std::shared_ptr<tcp::socket> socket)
 {
     int my_id = 0;
@@ -119,13 +165,15 @@ void session(std::shared_ptr<tcp::socket> socket)
     }
 }
 
-// --- 2. 广播循环 (物理计算核心) ---
+// ---  广播循环 (物理计算核心) ---
 void broadcast_loop()
 {
+	int frame_count = 0;
     while (true)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(SERVER_TICK_MS));
-
+        float dt = SERVER_TICK_MS / 1000.0f;
+        frame_count++;
         // A. 自动射击 & 子弹移动
         {
             std::lock_guard<std::mutex> lock(g_mutex);
@@ -141,35 +189,85 @@ void broadcast_loop()
                 // 使用 Object.h 里的 Cooldown = 300
                 if (duration > PLAYER_SHOOT_COOLDOWN)
                 {
+                  
                     Bullet b;
                     b.id = g_bullet_next_id++;
-                    // 【修正】使用与客户端完全一致的居中公式
-                    // 客户端: projectile->position.x = player.position.x + player.width/2 - projectile->width/2
-                    // 注意：这里计算的是子弹左上角的坐标
-                    b.x = player->x + (PLAYER_WIDTH_ESTIMATE / 2) - (BULLET_WIDTH_ESTIMATE / 2);
+                    b.x = player->x + (PLAYER_WIDTH_ESTIMATE - BULLET_WIDTH_ESTIMATE) / 2.0f;
                     b.y = player->y;
+                    b.vx = 0;
+                    b.vy = -PLAYER_BULLET_SPEED; // 向上
                     b.type = 0;
                     g_bullets.push_back(b);
-
                     player->last_shoot_time = now;
                 }
             }
 
-            // 2. 更新子弹位置
-            // 每帧移动距离 = 速度(600) * 时间(0.033) ≈ 20
-            float bullet_step = PLAYER_BULLET_SPEED * (SERVER_TICK_MS / 1000.0f);
-
-            for (auto it = g_bullets.begin(); it != g_bullets.end(); )
+            // 2. [新增] 敌机生成 (每隔一段时间生成一个)
+            if (frame_count % ENEMY_SPAWN_RATE == 0)
             {
-                if (it->type == 0) it->y -= bullet_step; // 向上
-                else it->y += (bullet_step / 2);         // 敌人子弹(假设慢点)
+                Enemy e;
+				e.id = g_enemy_next_id++;
+                e.x=dis(gen) *(WINDOW_WIDTH - ENEMY_WIDTH); // 随机生成在窗口内
+                e.y = -ENEMY_HEIGHT; // 从顶部出现
+                e.last_shoot_time = now;
+				g_enemies.push_back(e);
 
-                if (it->y < -50 || it->y > WINDOW_HEIGHT + 50) {
-                    it = g_bullets.erase(it);
+            }
+
+            // 3. [新增] 敌机逻辑 (移动 + 开火)
+            for (auto it = g_enemies.begin(); it != g_enemies.end();)
+            {
+                // A. 移动
+                it->y += ENEMY_SPEED * dt;
+                // B. 开火 (瞄准玩家)
+				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - it->last_shoot_time).count();
+                if (duration > 2000)
+                {
+                    auto target = GetNearestPlayer(it->x, it->y);
+                    if (target)
+                    {
+                        Bullet b;
+						b.id = g_bullet_next_id++;
+						b.type = 1; // 敌人子弹
+						b.x = it->x + (ENEMY_WIDTH / 2) - (BULLET_WIDTH_ESTIMATE / 2); // 从敌机中心发出
+						b.y = it->y + ENEMY_HEIGHT; // 从敌机底部发出
+
+                        // 计算瞄准向量
+						float dx = (target->x + PLAYER_WIDTH_ESTIMATE / 2) - b.x;
+						float dy = (target->y + PLAYER_HEIGHT_ESTIMATE / 2) - b.y;
+						float len = std::sqrt(dx * dx + dy * dy);
+                        if (len > 0) {
+                            b.vx = (dx / len) * 300.0f; // 敌机子弹速度 300
+                            b.vy = (dy / len) * 300.0f;
+                        }
+                        else {
+                            b.vx = 0; b.vy = 300.0f;
+                        }
+                        g_bullets.push_back(b);
+                        it->last_shoot_time = now;
+
+                    }
+                }
+                if(it->y>WINDOW_HEIGHT) it = g_enemies.erase(it); // 超出底部则销毁
+				else ++it;
+            }
+
+            // 4. 子弹移动 (支持斜着飞)
+            for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
+                if (it->vx == 0 && it->vy == 0) {
+                    // 兼容旧代码，如果没有vx/vy
+                    if (it->type == 0) it->y -= PLAYER_BULLET_SPEED * dt;
+                    else it->y += 300.0f * dt;
                 }
                 else {
-                    ++it;
+                    it->x += it->vx * dt;
+                    it->y += it->vy * dt;
                 }
+
+                if (it->y < -50 || it->y > WINDOW_HEIGHT + 50 || it->x < -50 || it->x > WINDOW_WIDTH + 50) {
+                    it = g_bullets.erase(it);
+                }
+                else ++it;
             }
         }
 
@@ -192,6 +290,17 @@ void broadcast_loop()
                 b_data->set_y(b.y);
                 b_data->set_type(b.type);
             }
+
+            // Enemies
+            for (const auto& e : g_enemies)
+            {
+				auto ed = snapshot.add_enemies();
+				ed->set_id(e.id);
+				ed->set_x(e.x);
+				ed->set_y(e.y);
+                ed->set_type(0);
+            }
+
         }
 
         std::string data;

@@ -107,6 +107,35 @@ struct LoginResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
 
+inline constexpr EnemyState::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : id_{0},
+        x_{0},
+        y_{0},
+        type_{0},
+        health_{0},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR EnemyState::EnemyState(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct EnemyStateDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR EnemyStateDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~EnemyStateDefaultTypeInternal() {}
+  union {
+    EnemyState _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 EnemyStateDefaultTypeInternal _EnemyState_default_instance_;
+
 inline constexpr BulletState::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : id_{0},
@@ -139,6 +168,7 @@ inline constexpr GameSnapshot::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : players_{},
         bullets_{},
+        enemies_{},
         _cached_size_{0} {}
 
 template <typename>
@@ -213,6 +243,19 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.y_),
         PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.type_),
         ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::game::EnemyState, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::game::EnemyState, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::game::EnemyState, _impl_.x_),
+        PROTOBUF_FIELD_OFFSET(::game::EnemyState, _impl_.y_),
+        PROTOBUF_FIELD_OFFSET(::game::EnemyState, _impl_.type_),
+        PROTOBUF_FIELD_OFFSET(::game::EnemyState, _impl_.health_),
+        ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
@@ -222,6 +265,7 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _impl_.players_),
         PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _impl_.bullets_),
+        PROTOBUF_FIELD_OFFSET(::game::GameSnapshot, _impl_.enemies_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -230,13 +274,15 @@ static const ::_pbi::MigrationSchema
         {11, -1, -1, sizeof(::game::PlayerInput)},
         {21, -1, -1, sizeof(::game::PlayerState)},
         {33, -1, -1, sizeof(::game::BulletState)},
-        {45, -1, -1, sizeof(::game::GameSnapshot)},
+        {45, -1, -1, sizeof(::game::EnemyState)},
+        {58, -1, -1, sizeof(::game::GameSnapshot)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::game::_LoginResponse_default_instance_._instance,
     &::game::_PlayerInput_default_instance_._instance,
     &::game::_PlayerState_default_instance_._instance,
     &::game::_BulletState_default_instance_._instance,
+    &::game::_EnemyState_default_instance_._instance,
     &::game::_GameSnapshot_default_instance_._instance,
 };
 const char descriptor_table_protodef_game_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
@@ -250,21 +296,24 @@ const char descriptor_table_protodef_game_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     "layerState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003"
     " \001(\002\022\r\n\005angle\030\004 \001(\002\"=\n\013BulletState\022\n\n\002id"
     "\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001"
-    "(\005\"V\n\014GameSnapshot\022\"\n\007players\030\001 \003(\0132\021.ga"
-    "me.PlayerState\022\"\n\007bullets\030\002 \003(\0132\021.game.B"
-    "ulletStateb\006proto3"
+    "(\005\"L\n\nEnemyState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022"
+    "\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001(\005\022\016\n\006health\030\005 \001(\005"
+    "\"y\n\014GameSnapshot\022\"\n\007players\030\001 \003(\0132\021.game"
+    ".PlayerState\022\"\n\007bullets\030\002 \003(\0132\021.game.Bul"
+    "letState\022!\n\007enemies\030\003 \003(\0132\020.game.EnemySt"
+    "ateb\006proto3"
 };
 static ::absl::once_flag descriptor_table_game_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_game_2eproto = {
     false,
     false,
-    458,
+    571,
     descriptor_table_protodef_game_2eproto,
     "game.proto",
     &descriptor_table_game_2eproto_once,
     nullptr,
     0,
-    5,
+    6,
     schemas,
     file_default_instances,
     TableStruct_game_2eproto::offsets,
@@ -1361,6 +1410,311 @@ void BulletState::InternalSwap(BulletState* PROTOBUF_RESTRICT other) {
 }
 // ===================================================================
 
+class EnemyState::_Internal {
+ public:
+};
+
+EnemyState::EnemyState(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:game.EnemyState)
+}
+EnemyState::EnemyState(
+    ::google::protobuf::Arena* arena, const EnemyState& from)
+    : EnemyState(arena) {
+  MergeFrom(from);
+}
+inline PROTOBUF_NDEBUG_INLINE EnemyState::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void EnemyState::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, health_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::health_));
+}
+EnemyState::~EnemyState() {
+  // @@protoc_insertion_point(destructor:game.EnemyState)
+  SharedDtor(*this);
+}
+inline void EnemyState::SharedDtor(MessageLite& self) {
+  EnemyState& this_ = static_cast<EnemyState&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* EnemyState::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) EnemyState(arena);
+}
+constexpr auto EnemyState::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(EnemyState),
+                                            alignof(EnemyState));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull EnemyState::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_EnemyState_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &EnemyState::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<EnemyState>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &EnemyState::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<EnemyState>(), &EnemyState::ByteSizeLong,
+            &EnemyState::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(EnemyState, _impl_._cached_size_),
+        false,
+    },
+    &EnemyState::kDescriptorMethods,
+    &descriptor_table_game_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* EnemyState::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<3, 5, 0, 0, 2> EnemyState::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    5, 56,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967264,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    5,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::game::EnemyState>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(EnemyState, _impl_.id_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.id_)}},
+    // float x = 2;
+    {::_pbi::TcParser::FastF32S1,
+     {21, 63, 0, PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.x_)}},
+    // float y = 3;
+    {::_pbi::TcParser::FastF32S1,
+     {29, 63, 0, PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.y_)}},
+    // int32 type = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(EnemyState, _impl_.type_), 63>(),
+     {32, 63, 0, PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.type_)}},
+    // int32 health = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(EnemyState, _impl_.health_), 63>(),
+     {40, 63, 0, PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.health_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.id_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // float x = 2;
+    {PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.x_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
+    // float y = 3;
+    {PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.y_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
+    // int32 type = 4;
+    {PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.type_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // int32 health = 5;
+    {PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.health_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+PROTOBUF_NOINLINE void EnemyState::Clear() {
+// @@protoc_insertion_point(message_clear_start:game.EnemyState)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.health_) -
+      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.health_));
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* EnemyState::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const EnemyState& this_ = static_cast<const EnemyState&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* EnemyState::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const EnemyState& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:game.EnemyState)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // int32 id = 1;
+          if (this_._internal_id() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<1>(
+                    stream, this_._internal_id(), target);
+          }
+
+          // float x = 2;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_x()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                2, this_._internal_x(), target);
+          }
+
+          // float y = 3;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_y()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                3, this_._internal_y(), target);
+          }
+
+          // int32 type = 4;
+          if (this_._internal_type() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<4>(
+                    stream, this_._internal_type(), target);
+          }
+
+          // int32 health = 5;
+          if (this_._internal_health() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<5>(
+                    stream, this_._internal_health(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:game.EnemyState)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t EnemyState::ByteSizeLong(const MessageLite& base) {
+          const EnemyState& this_ = static_cast<const EnemyState&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t EnemyState::ByteSizeLong() const {
+          const EnemyState& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:game.EnemyState)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // int32 id = 1;
+            if (this_._internal_id() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_id());
+            }
+            // float x = 2;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_x()) != 0) {
+              total_size += 5;
+            }
+            // float y = 3;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_y()) != 0) {
+              total_size += 5;
+            }
+            // int32 type = 4;
+            if (this_._internal_type() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_type());
+            }
+            // int32 health = 5;
+            if (this_._internal_health() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_health());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void EnemyState::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<EnemyState*>(&to_msg);
+  auto& from = static_cast<const EnemyState&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:game.EnemyState)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_id() != 0) {
+    _this->_impl_.id_ = from._impl_.id_;
+  }
+  if (::absl::bit_cast<::uint32_t>(from._internal_x()) != 0) {
+    _this->_impl_.x_ = from._impl_.x_;
+  }
+  if (::absl::bit_cast<::uint32_t>(from._internal_y()) != 0) {
+    _this->_impl_.y_ = from._impl_.y_;
+  }
+  if (from._internal_type() != 0) {
+    _this->_impl_.type_ = from._impl_.type_;
+  }
+  if (from._internal_health() != 0) {
+    _this->_impl_.health_ = from._impl_.health_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void EnemyState::CopyFrom(const EnemyState& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:game.EnemyState)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void EnemyState::InternalSwap(EnemyState* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.health_)
+      + sizeof(EnemyState::_impl_.health_)
+      - PROTOBUF_FIELD_OFFSET(EnemyState, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
+}
+
+::google::protobuf::Metadata EnemyState::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class GameSnapshot::_Internal {
  public:
 };
@@ -1379,6 +1733,7 @@ inline PROTOBUF_NDEBUG_INLINE GameSnapshot::Impl_::Impl_(
     const Impl_& from, const ::game::GameSnapshot& from_msg)
       : players_{visibility, arena, from.players_},
         bullets_{visibility, arena, from.bullets_},
+        enemies_{visibility, arena, from.enemies_},
         _cached_size_{0} {}
 
 GameSnapshot::GameSnapshot(
@@ -1402,6 +1757,7 @@ inline PROTOBUF_NDEBUG_INLINE GameSnapshot::Impl_::Impl_(
     ::google::protobuf::Arena* arena)
       : players_{visibility, arena},
         bullets_{visibility, arena},
+        enemies_{visibility, arena},
         _cached_size_{0} {}
 
 inline void GameSnapshot::SharedCtor(::_pb::Arena* arena) {
@@ -1430,6 +1786,10 @@ constexpr auto GameSnapshot::InternalNewImpl_() {
                   ::google::protobuf::Message::internal_visibility()),
       PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_) +
           decltype(GameSnapshot::_impl_.bullets_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+      PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.enemies_) +
+          decltype(GameSnapshot::_impl_.enemies_)::
               InternalGetArenaOffset(
                   ::google::protobuf::Message::internal_visibility()),
   });
@@ -1470,16 +1830,16 @@ const ::google::protobuf::internal::ClassData* GameSnapshot::GetClassData() cons
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 2, 0, 2> GameSnapshot::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 3, 0, 2> GameSnapshot::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
-    2,  // num_aux_entries
+    3,  // num_field_entries
+    3,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     _class_data_.base(),
     nullptr,  // post_loop_handler
@@ -1488,12 +1848,16 @@ const ::_pbi::TcParseTable<1, 2, 2, 0, 2> GameSnapshot::_table_ = {
     ::_pbi::TcParser::GetTable<::game::GameSnapshot>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // repeated .game.BulletState bullets = 2;
-    {::_pbi::TcParser::FastMtR1,
-     {18, 63, 1, PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // repeated .game.PlayerState players = 1;
     {::_pbi::TcParser::FastMtR1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.players_)}},
+    // repeated .game.BulletState bullets = 2;
+    {::_pbi::TcParser::FastMtR1,
+     {18, 63, 1, PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_)}},
+    // repeated .game.EnemyState enemies = 3;
+    {::_pbi::TcParser::FastMtR1,
+     {26, 63, 2, PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.enemies_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -1503,9 +1867,13 @@ const ::_pbi::TcParseTable<1, 2, 2, 0, 2> GameSnapshot::_table_ = {
     // repeated .game.BulletState bullets = 2;
     {PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.bullets_), 0, 1,
     (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
+    // repeated .game.EnemyState enemies = 3;
+    {PROTOBUF_FIELD_OFFSET(GameSnapshot, _impl_.enemies_), 0, 2,
+    (0 | ::_fl::kFcRepeated | ::_fl::kMessage | ::_fl::kTvTable)},
   }}, {{
     {::_pbi::TcParser::GetTable<::game::PlayerState>()},
     {::_pbi::TcParser::GetTable<::game::BulletState>()},
+    {::_pbi::TcParser::GetTable<::game::EnemyState>()},
   }}, {{
   }},
 };
@@ -1519,6 +1887,7 @@ PROTOBUF_NOINLINE void GameSnapshot::Clear() {
 
   _impl_.players_.Clear();
   _impl_.bullets_.Clear();
+  _impl_.enemies_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -1556,6 +1925,17 @@ PROTOBUF_NOINLINE void GameSnapshot::Clear() {
             target =
                 ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
                     2, repfield, repfield.GetCachedSize(),
+                    target, stream);
+          }
+
+          // repeated .game.EnemyState enemies = 3;
+          for (unsigned i = 0, n = static_cast<unsigned>(
+                                   this_._internal_enemies_size());
+               i < n; i++) {
+            const auto& repfield = this_._internal_enemies().Get(i);
+            target =
+                ::google::protobuf::internal::WireFormatLite::InternalWriteMessage(
+                    3, repfield, repfield.GetCachedSize(),
                     target, stream);
           }
 
@@ -1598,6 +1978,13 @@ PROTOBUF_NOINLINE void GameSnapshot::Clear() {
                 total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
               }
             }
+            // repeated .game.EnemyState enemies = 3;
+            {
+              total_size += 1UL * this_._internal_enemies_size();
+              for (const auto& msg : this_._internal_enemies()) {
+                total_size += ::google::protobuf::internal::WireFormatLite::MessageSize(msg);
+              }
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -1615,6 +2002,8 @@ void GameSnapshot::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::go
       from._internal_players());
   _this->_internal_mutable_bullets()->MergeFrom(
       from._internal_bullets());
+  _this->_internal_mutable_enemies()->MergeFrom(
+      from._internal_enemies());
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1631,6 +2020,7 @@ void GameSnapshot::InternalSwap(GameSnapshot* PROTOBUF_RESTRICT other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   _impl_.players_.InternalSwap(&other->_impl_.players_);
   _impl_.bullets_.InternalSwap(&other->_impl_.bullets_);
+  _impl_.enemies_.InternalSwap(&other->_impl_.enemies_);
 }
 
 ::google::protobuf::Metadata GameSnapshot::GetMetadata() const {
