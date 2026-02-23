@@ -271,6 +271,7 @@ class PlayerState final : public ::google::protobuf::Message
     kXFieldNumber = 2,
     kYFieldNumber = 3,
     kAngleFieldNumber = 4,
+    kHealthFieldNumber = 5,
   };
   // int32 id = 1;
   void clear_id() ;
@@ -312,12 +313,22 @@ class PlayerState final : public ::google::protobuf::Message
   void _internal_set_angle(float value);
 
   public:
+  // int32 health = 5;
+  void clear_health() ;
+  ::int32_t health() const;
+  void set_health(::int32_t value);
+
+  private:
+  ::int32_t _internal_health() const;
+  void _internal_set_health(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game.PlayerState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 4, 0,
+      3, 5, 0,
       0, 2>
       _table_;
 
@@ -339,6 +350,7 @@ class PlayerState final : public ::google::protobuf::Message
     float x_;
     float y_;
     float angle_;
+    ::int32_t health_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1174,6 +1186,7 @@ class BulletState final : public ::google::protobuf::Message
     kXFieldNumber = 2,
     kYFieldNumber = 3,
     kTypeFieldNumber = 4,
+    kAngleFieldNumber = 5,
   };
   // int32 id = 1;
   void clear_id() ;
@@ -1215,12 +1228,22 @@ class BulletState final : public ::google::protobuf::Message
   void _internal_set_type(::int32_t value);
 
   public:
+  // float angle = 5;
+  void clear_angle() ;
+  float angle() const;
+  void set_angle(float value);
+
+  private:
+  float _internal_angle() const;
+  void _internal_set_angle(float value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game.BulletState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 4, 0,
+      3, 5, 0,
       0, 2>
       _table_;
 
@@ -1242,6 +1265,7 @@ class BulletState final : public ::google::protobuf::Message
     float x_;
     float y_;
     ::int32_t type_;
+    float angle_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1706,6 +1730,28 @@ inline void PlayerState::_internal_set_angle(float value) {
   _impl_.angle_ = value;
 }
 
+// int32 health = 5;
+inline void PlayerState::clear_health() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.health_ = 0;
+}
+inline ::int32_t PlayerState::health() const {
+  // @@protoc_insertion_point(field_get:game.PlayerState.health)
+  return _internal_health();
+}
+inline void PlayerState::set_health(::int32_t value) {
+  _internal_set_health(value);
+  // @@protoc_insertion_point(field_set:game.PlayerState.health)
+}
+inline ::int32_t PlayerState::_internal_health() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.health_;
+}
+inline void PlayerState::_internal_set_health(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.health_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // BulletState
@@ -1796,6 +1842,28 @@ inline ::int32_t BulletState::_internal_type() const {
 inline void BulletState::_internal_set_type(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.type_ = value;
+}
+
+// float angle = 5;
+inline void BulletState::clear_angle() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.angle_ = 0;
+}
+inline float BulletState::angle() const {
+  // @@protoc_insertion_point(field_get:game.BulletState.angle)
+  return _internal_angle();
+}
+inline void BulletState::set_angle(float value) {
+  _internal_set_angle(value);
+  // @@protoc_insertion_point(field_set:game.BulletState.angle)
+}
+inline float BulletState::_internal_angle() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.angle_;
+}
+inline void BulletState::_internal_set_angle(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.angle_ = value;
 }
 
 // -------------------------------------------------------------------

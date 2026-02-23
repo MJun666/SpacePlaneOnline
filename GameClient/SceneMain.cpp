@@ -231,6 +231,22 @@ void SceneMain::update(float deltaTime)
            // --- 情况一：这是我！同步给本地主角 ---
            this->player.position.x = server_player.x();
            this->player.position.y = server_player.y();
+
+           this->player.currenthealth = server_player.health();
+
+           //  死亡判定与特效触发
+           if (this->player.currenthealth <= 0 && !this->isDead)
+           {
+               this->isDead = true;
+               // 触发你原有的爆炸特效
+               auto explosion = new Explosion(explosionTemplate);
+               explosion->position.x = player.position.x + player.width / 2 - explosion->width / 2;
+               explosion->position.y = player.position.y + player.height / 2 - explosion->height / 2;
+               explosion->startTime = SDL_GetTicks();
+               explosions.push_back(explosion);
+               Mix_PlayChannel(-1, sounds["player_explode"], 0);
+               game.setScore(score);
+           }
        }
        else
        {
@@ -762,33 +778,7 @@ void SceneMain::renderRemotePlayers()
     }
 }
 
-//void SceneMain::renderNetworkBullets()
-//{
-//    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
-//    for (const auto& bullet : state.bullets())
-//    {
-//        SDL_Texture* textureToDraw = nullptr;
-//        int w = 0, h = 0;
-//        float angle = 0.0f;
-//
-//        // 根据类型选择贴图
-//        if (bullet.type() == 0) {
-//            SDL_Rect dst = {
-//                static_cast<int>(bullet.x()),
-//                static_cast<int>(bullet.y()),
-//                w, h
-//            };
-//            SDL_RenderCopy(game.getRenderer(), textureToDraw, NULL, &dst);
-//        }
-//        else if (bullet.type() == 1) {
-//            // 敌人子弹：复用原本的敌人子弹图
-//            textureToDraw = projectileEnemyTemplate.texture;
-//            w = projectileEnemyTemplate.width;
-//            h = projectileEnemyTemplate.height;
-//            angle = 180.0f; // 敌人子弹倒过来画
-//        }
-//    }
-//}
+
 void SceneMain::renderNetworkBullets()
 {
     // 获取最新网络状态
@@ -798,7 +788,7 @@ void SceneMain::renderNetworkBullets()
     {
         SDL_Texture* textureToDraw = nullptr;
         int w = 0, h = 0;
-        float angle = 0.0f;
+        float angle = bullet.angle();
 
         // 根据类型选择贴图
         if (bullet.type() == 0) {
@@ -812,7 +802,7 @@ void SceneMain::renderNetworkBullets()
             textureToDraw = projectileEnemyTemplate.texture;
             w = projectileEnemyTemplate.width;
             h = projectileEnemyTemplate.height;
-            angle = 180.0f; // 敌人子弹倒过来画
+            
         }
 
         // 只要找到了贴图，就画出来

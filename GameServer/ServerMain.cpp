@@ -38,28 +38,32 @@ const int ENEMY_SPAWN_RATE = 60;
 
 struct Player
 {
-    int id;
-    float x = WINDOW_WIDTH / 2.0f - PLAYER_WIDTH_ESTIMATE / 2.0f; // 居中
-    float y = WINDOW_HEIGHT - 100.0f; // 靠下
-    std::shared_ptr<tcp::socket> socket;
+	int id;
+	float x = WINDOW_WIDTH / 2.0f - PLAYER_WIDTH_ESTIMATE / 2.0f; // 居中
+	float y = WINDOW_HEIGHT - 100.0f; // 靠下
+	std::shared_ptr<tcp::socket> socket;
 
-    // 射击计时器
-    std::chrono::steady_clock::time_point last_shoot_time;
+	// 射击计时器
+	std::chrono::steady_clock::time_point last_shoot_time;
+	int health = 5;
 };
 
 struct Bullet {
-    int id;
-    float x, y;
-    float vx, vy;
-    int type; // 0=玩家, 1=敌人
+	int id;
+	float x, y;
+	float vx, vy;
+	int type; // 0=玩家, 1=敌人
+	float angle;
+	bool active = true;
 };
 
 struct Enemy
 {
-    int id; 
+	int id; 
 	float x, y;
-    std::chrono::steady_clock::time_point last_shoot_time;
-
+	std::chrono::steady_clock::time_point last_shoot_time;
+	bool active = true;
+	int health = 2;
 };
 
 // 全局变量
@@ -77,263 +81,338 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<float>  dis(0.0f,1.0f);  
 
+//  矩形碰撞检测函数
+bool CheckCollision(float x1, float y1, float w1, float h1,
+	float x2, float y2, float w2, float h2)
+{
+	return (x1 < x2 + w2 && x1 + w1 > x2 &&
+		y1 < y2 + h2 && y1 + h1 > y2);
+}
 
 // --- 辅助：寻找最近的玩家 ---
 std::shared_ptr<Player>GetNearestPlayer(float ex, float ey)
 {
 	std::shared_ptr<Player> target = nullptr;
-    float min_dist = 1000000.0f;
-    for (auto& pair : g_players)
-    {
+	float min_dist = 1000000.0f;
+	for (auto& pair : g_players)
+	{
 		float dx = pair.second->x - ex;
 		float dy = pair.second->y - ey;
 		float dist = dx * dx + dy * dy; // 距离的平方
-        if (min_dist > dist)
-        {
-            min_dist = dist;
+		if (min_dist > dist)
+		{
+			min_dist = dist;
 			target = pair.second;
-        }
-    }
+		}
+	}
 
-    return target;
+	return target;
 }
 
 
 // ---  处理客户端连接 ---
 void session(std::shared_ptr<tcp::socket> socket)
 {
-    int my_id = 0;
-    try {
-        {
-            std::lock_guard<std::mutex> lock(g_mutex);
-            my_id = g_next_id++;
-            auto player = std::make_shared<Player>();
-            player->id = my_id;
-            player->socket = socket;
-            g_players[my_id] = player;
-        }
-        std::cout << "[Server] Player " << my_id << " joined!" << std::endl;
+	int my_id = 0;
+	try {
+		{
+			std::lock_guard<std::mutex> lock(g_mutex);
+			my_id = g_next_id++;
+			auto player = std::make_shared<Player>();
+			player->id = my_id;
+			player->socket = socket;
+			g_players[my_id] = player;
+		}
+		std::cout << "[Server] Player " << my_id << " joined!" << std::endl;
 
-        // 发送登录响应
-        game::LoginResponse login_msg;
-        login_msg.set_your_id(my_id);
-        login_msg.set_init_x(g_players[my_id]->x);
-        login_msg.set_init_y(g_players[my_id]->y);
+		// 发送登录响应
+		game::LoginResponse login_msg;
+		login_msg.set_your_id(my_id);
+		login_msg.set_init_x(g_players[my_id]->x);
+		login_msg.set_init_y(g_players[my_id]->y);
 
-        std::string data;
-        login_msg.SerializeToString(&data);
-        boost::asio::write(*socket, boost::asio::buffer(data));
+		std::string data;
+		login_msg.SerializeToString(&data);
+		boost::asio::write(*socket, boost::asio::buffer(data));
 
-        while (true)
-        {
-            char data[1024];
-            boost::system::error_code error;
-            size_t length = socket->read_some(boost::asio::buffer(data), error);
-            if (error) break;
+		while (true)
+		{
+			char data[1024];
+			boost::system::error_code error;
+			size_t length = socket->read_some(boost::asio::buffer(data), error);
+			if (error) break;
 
-            game::PlayerInput input;
-            if (input.ParseFromArray(data, length))
-            {
-                std::lock_guard<std::mutex> lock(g_mutex);
-                if (g_players.find(my_id) == g_players.end()) break;
+			game::PlayerInput input;
+			if (input.ParseFromArray(data, length))
+			{
+				std::lock_guard<std::mutex> lock(g_mutex);
+				if (g_players.find(my_id) == g_players.end()) break;
 
-                auto& p = g_players[my_id];
-                // Object.h 里的 player speed 是 300，服务器每帧跑 33ms
-                // 300 * 0.033 ≈ 10 像素/帧
-                float move_speed = 300.0f * (SERVER_TICK_MS / 1000.0f);
+				auto& p = g_players[my_id];
+				// Object.h 里的 player speed 是 300，服务器每帧跑 33ms
+				// 300 * 0.033 ≈ 10 像素/帧
+				float move_speed = 300.0f * (SERVER_TICK_MS / 1000.0f);
 
-                if (input.input() == game::PlayerInput_InputType_UP)    p->y -= move_speed;
-                if (input.input() == game::PlayerInput_InputType_DOWN)  p->y += move_speed;
-                if (input.input() == game::PlayerInput_InputType_LEFT)  p->x -= move_speed;
-                if (input.input() == game::PlayerInput_InputType_RIGHT) p->x += move_speed;
+				if (input.input() == game::PlayerInput_InputType_UP)    p->y -= move_speed;
+				if (input.input() == game::PlayerInput_InputType_DOWN)  p->y += move_speed;
+				if (input.input() == game::PlayerInput_InputType_LEFT)  p->x -= move_speed;
+				if (input.input() == game::PlayerInput_InputType_RIGHT) p->x += move_speed;
 
-                // 修正后的边界检查 (600x800)
-                if (p->x < 0) p->x = 0;
-                if (p->x > WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE) p->x = WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE;
-                if (p->y < 0) p->y = 0;
-                if (p->y > WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE) p->y = WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE;
-            }
-        }
-    }
-    catch (std::exception& e) {
-        std::cerr << "[Server] Player " << my_id << " error: " << e.what() << std::endl;
-    }
+				// 修正后的边界检查 (600x800)
+				if (p->x < 0) p->x = 0;
+				if (p->x > WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE) p->x = WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE;
+				if (p->y < 0) p->y = 0;
+				if (p->y > WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE) p->y = WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE;
+			}
+		}
+	}
+	catch (std::exception& e) {
+		std::cerr << "[Server] Player " << my_id << " error: " << e.what() << std::endl;
+	}
 
-    {
-        std::lock_guard<std::mutex> lock(g_mutex);
-        g_players.erase(my_id);
-    }
+	{
+		std::lock_guard<std::mutex> lock(g_mutex);
+		g_players.erase(my_id);
+	}
 }
 
 // ---  广播循环 (物理计算核心) ---
 void broadcast_loop()
 {
 	int frame_count = 0;
-    while (true)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(SERVER_TICK_MS));
-        float dt = SERVER_TICK_MS / 1000.0f;
-        frame_count++;
-        // A. 自动射击 & 子弹移动
-        {
-            std::lock_guard<std::mutex> lock(g_mutex);
-            auto now = std::chrono::steady_clock::now();
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(SERVER_TICK_MS));
+		float dt = SERVER_TICK_MS / 1000.0f;
+		frame_count++;
+		// A. 自动射击 & 子弹移动
+		{
+			std::lock_guard<std::mutex> lock(g_mutex);
+			auto now = std::chrono::steady_clock::now();
 
-            // 1. 自动射击
-            for (auto& pair : g_players)
-            {
-                auto player = pair.second;
-                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    now - player->last_shoot_time).count();
+			// 1. 自动射击
+			for (auto& pair : g_players)
+			{
+				auto player = pair.second;
+				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+					now - player->last_shoot_time).count();
 
-                // 使用 Object.h 里的 Cooldown = 300
-                if (duration > PLAYER_SHOOT_COOLDOWN)
-                {
-                  
-                    Bullet b;
-                    b.id = g_bullet_next_id++;
-                    b.x = player->x + (PLAYER_WIDTH_ESTIMATE - BULLET_WIDTH_ESTIMATE) / 2.0f;
-                    b.y = player->y;
-                    b.vx = 0;
-                    b.vy = -PLAYER_BULLET_SPEED; // 向上
-                    b.type = 0;
-                    g_bullets.push_back(b);
-                    player->last_shoot_time = now;
-                }
-            }
+				// 使用 Object.h 里的 Cooldown = 300
+				if (duration > PLAYER_SHOOT_COOLDOWN)
+				{
+				  
+					Bullet b;
+					b.id = g_bullet_next_id++;
+					b.x = player->x + (PLAYER_WIDTH_ESTIMATE - BULLET_WIDTH_ESTIMATE) / 2.0f;
+					b.y = player->y;
+					b.vx = 0;
+					b.vy = -PLAYER_BULLET_SPEED; // 向上
+					b.type = 0;
+					b.angle = 0.0f; //  玩家子弹不用旋转
+					g_bullets.push_back(b);
+					player->last_shoot_time = now;
+				}
+			}
 
-            // 2. [新增] 敌机生成 (每隔一段时间生成一个)
-            if (frame_count % ENEMY_SPAWN_RATE == 0)
-            {
-                Enemy e;
+			// 2. 敌机生成 (每隔一段时间生成一个)
+			if (frame_count % ENEMY_SPAWN_RATE == 0)
+			{
+				Enemy e;
 				e.id = g_enemy_next_id++;
-                e.x=dis(gen) *(WINDOW_WIDTH - ENEMY_WIDTH); // 随机生成在窗口内
-                e.y = -ENEMY_HEIGHT; // 从顶部出现
-                e.last_shoot_time = now;
+				e.x=dis(gen) *(WINDOW_WIDTH - ENEMY_WIDTH); // 随机生成在窗口内
+				e.y = -ENEMY_HEIGHT; // 从顶部出现
+				e.last_shoot_time = now;
 				g_enemies.push_back(e);
 
-            }
+			}
 
-            // 3. [新增] 敌机逻辑 (移动 + 开火)
-            for (auto it = g_enemies.begin(); it != g_enemies.end();)
-            {
-                // A. 移动
-                it->y += ENEMY_SPEED * dt;
-                // B. 开火 (瞄准玩家)
+			// 3.  敌机逻辑 (移动 + 开火)
+			for (auto it = g_enemies.begin(); it != g_enemies.end();)
+			{
+				// A. 移动
+				it->y += ENEMY_SPEED * dt;
+				// B. 开火 (瞄准玩家)
 				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - it->last_shoot_time).count();
-                if (duration > 2000)
-                {
-                    auto target = GetNearestPlayer(it->x, it->y);
-                    if (target)
-                    {
-                        Bullet b;
+				if (duration > 2000)
+				{
+					auto target = GetNearestPlayer(it->x, it->y);
+					if (target)
+					{
+						Bullet b;
 						b.id = g_bullet_next_id++;
 						b.type = 1; // 敌人子弹
 						b.x = it->x + (ENEMY_WIDTH / 2) - (BULLET_WIDTH_ESTIMATE / 2); // 从敌机中心发出
 						b.y = it->y + ENEMY_HEIGHT; // 从敌机底部发出
 
-                        // 计算瞄准向量
+						// 计算瞄准向量
 						float dx = (target->x + PLAYER_WIDTH_ESTIMATE / 2) - b.x;
 						float dy = (target->y + PLAYER_HEIGHT_ESTIMATE / 2) - b.y;
 						float len = std::sqrt(dx * dx + dy * dy);
-                        if (len > 0) {
-                            b.vx = (dx / len) * 300.0f; // 敌机子弹速度 300
-                            b.vy = (dy / len) * 300.0f;
-                        }
-                        else {
-                            b.vx = 0; b.vy = 300.0f;
-                        }
-                        g_bullets.push_back(b);
-                        it->last_shoot_time = now;
+						if (len > 0) {
+							b.vx = (dx / len) * 300.0f; // 敌机子弹速度 300
+							b.vy = (dy / len) * 300.0f;
+							b.angle = atan2(dy, dx) * 180.0f / 3.14159265f - 90.0f;
+						}
+						else {
+							b.vx = 0; b.vy = 300.0f;
+							b.angle = 180.0f; // [新增] 垂直朝下
+						}
+						g_bullets.push_back(b);
+						it->last_shoot_time = now;
 
-                    }
-                }
-                if(it->y>WINDOW_HEIGHT) it = g_enemies.erase(it); // 超出底部则销毁
+					}
+				}
+				if(it->y>WINDOW_HEIGHT) it = g_enemies.erase(it); // 超出底部则销毁
 				else ++it;
-            }
+			}
 
-            // 4. 子弹移动 (支持斜着飞)
-            for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
-                if (it->vx == 0 && it->vy == 0) {
-                    // 兼容旧代码，如果没有vx/vy
-                    if (it->type == 0) it->y -= PLAYER_BULLET_SPEED * dt;
-                    else it->y += 300.0f * dt;
-                }
-                else {
-                    it->x += it->vx * dt;
-                    it->y += it->vy * dt;
-                }
+			// 4. 子弹移动 (支持斜着飞)
+			for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
+				if (it->vx == 0 && it->vy == 0) {
+					// 兼容旧代码，如果没有vx/vy
+					if (it->type == 0) it->y -= PLAYER_BULLET_SPEED * dt;
+					else it->y += 300.0f * dt;
+				}
+				else {
+					it->x += it->vx * dt;
+					it->y += it->vy * dt;
+				}
 
-                if (it->y < -50 || it->y > WINDOW_HEIGHT + 50 || it->x < -50 || it->x > WINDOW_WIDTH + 50) {
-                    it = g_bullets.erase(it);
-                }
-                else ++it;
-            }
-        }
+				if (it->y < -50 || it->y > WINDOW_HEIGHT + 50 || it->x < -50 || it->x > WINDOW_WIDTH + 50) {
+					it = g_bullets.erase(it);
+				}
+				else ++it;
+			}
+		}
+		// 5. 碰撞检测与伤害判定
+		// A. 子弹打中物体
+		for (auto& b : g_bullets)
+		{
+			if (!b.active) continue;
 
-        // B. 打包发送
-        game::GameSnapshot snapshot;
-        std::vector<std::shared_ptr<tcp::socket>> sockets_to_send;
-        {
-            std::lock_guard<std::mutex> lock(g_mutex);
-            for (auto& pair : g_players) {
-                auto p_data = snapshot.add_players();
-                p_data->set_id(pair.second->id);
-                p_data->set_x(pair.second->x);
-                p_data->set_y(pair.second->y);
-                sockets_to_send.push_back(pair.second->socket);
-            }
-            for (const auto& b : g_bullets) {
-                auto b_data = snapshot.add_bullets();
-                b_data->set_id(b.id);
-                b_data->set_x(b.x);
-                b_data->set_y(b.y);
-                b_data->set_type(b.type);
-            }
+			if (b.type == 0)
+			{
+				// 玩家子弹 -> 打敌人
+				for (auto& e : g_enemies)
+				{
+					if (!e.active) continue;
+					if (CheckCollision(b.x, b.y, BULLET_WIDTH_ESTIMATE, BULLET_HEIGHT_ESTIMATE,
+						e.x, e.y, ENEMY_WIDTH, ENEMY_HEIGHT))
+					{
+						e.health -= 1;
+						b.active = false;
+						if (e.health <= 0) e.active = false;
+						break;
+					}
+				}
+			}
+			else if (b.type == 1)
+			{
+				// 敌机子弹 -> 打玩家
+				for (auto& pair : g_players)
+				{
+					auto p = pair.second;
+					if (p->health <= 0) continue;
+					if (CheckCollision(b.x, b.y, BULLET_WIDTH_ESTIMATE, BULLET_HEIGHT_ESTIMATE,
+						p->x, p->y, PLAYER_WIDTH_ESTIMATE, PLAYER_HEIGHT_ESTIMATE)) {
+						p->health -= 1;    // 玩家扣血
+						b.active = false;  // 子弹销毁
+						break;
+					}
+				}
+			}
+		}
+		// B. 敌机直接撞上玩家 (神风特攻)
+		for (auto& e : g_enemies)
+		{
+			if (!e.active) continue;
 
-            // Enemies
-            for (const auto& e : g_enemies)
-            {
+			for (auto& pair : g_players)
+			{
+				auto p = pair.second;
+				if (p->health <= 0) continue;
+				if (CheckCollision(e.x, e.y, ENEMY_WIDTH, ENEMY_HEIGHT,
+					p->x, p->y, PLAYER_WIDTH_ESTIMATE, PLAYER_HEIGHT_ESTIMATE)) {
+					p->health -= 1;   // 玩家扣血
+					e.active = false; // 敌机坠毁
+					break;
+				}
+			}
+		}
+
+		// C. 统一清理尸体
+			g_bullets.erase(std::remove_if(g_bullets.begin(), g_bullets.end(),
+				[](const Bullet& b) { return !b.active; }), g_bullets.end());
+			g_enemies.erase(std::remove_if(g_enemies.begin(), g_enemies.end(),
+				[](const Enemy& e) { return !e.active; }), g_enemies.end());
+
+		// 6. 打包发送
+		game::GameSnapshot snapshot;
+		std::vector<std::shared_ptr<tcp::socket>> sockets_to_send;
+		{
+			std::lock_guard<std::mutex> lock(g_mutex);
+			for (auto& pair : g_players) {
+				auto p_data = snapshot.add_players();
+				p_data->set_id(pair.second->id);
+				p_data->set_x(pair.second->x);
+				p_data->set_y(pair.second->y);
+				p_data->set_health(pair.second->health);
+				sockets_to_send.push_back(pair.second->socket);
+			}
+			for (const auto& b : g_bullets) {
+				auto b_data = snapshot.add_bullets();
+				b_data->set_id(b.id);
+				b_data->set_x(b.x);
+				b_data->set_y(b.y);
+				b_data->set_type(b.type);
+				b_data->set_angle(b.angle);
+			
+			}
+
+			// Enemies
+			for (const auto& e : g_enemies)
+			{
 				auto ed = snapshot.add_enemies();
 				ed->set_id(e.id);
 				ed->set_x(e.x);
 				ed->set_y(e.y);
-                ed->set_type(0);
-            }
+				ed->set_type(0);
+				ed->set_health(e.health);
+			}
 
-        }
+		}
 
-        std::string data;
-        snapshot.SerializeToString(&data);
-        for (auto& sock : sockets_to_send) {
-            try { boost::asio::write(*sock, boost::asio::buffer(data)); }
-            catch (...) {}
-        }
-    }
+		std::string data;
+		snapshot.SerializeToString(&data);
+		for (auto& sock : sockets_to_send) {
+			try { boost::asio::write(*sock, boost::asio::buffer(data)); }
+			catch (...) {}
+		}
+	}
 }
 
 int main()
 {
-    try {
-        boost::asio::io_context io_context;
-        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 8888));
-        std::cout << "[Server] Started on 8888. World: " << WINDOW_WIDTH << "x" << WINDOW_HEIGHT << std::endl;
-        std::cout << "[Config] Cooldown: " << PLAYER_SHOOT_COOLDOWN << "ms, Bullet Speed: " << PLAYER_BULLET_SPEED << std::endl;
-        std::cout << "[Config] Player Size: " << PLAYER_WIDTH_ESTIMATE << "x" << PLAYER_HEIGHT_ESTIMATE << std::endl;
-        std::cout << "[Config] Bullet Size: " << BULLET_WIDTH_ESTIMATE << "x" << BULLET_HEIGHT_ESTIMATE << std::endl;
-      
-        std::thread broadcaster(broadcast_loop);
-        broadcaster.detach();
+	try {
+		boost::asio::io_context io_context;
+		tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 8888));
+		std::cout << "[Server] Started on 8888. World: " << WINDOW_WIDTH << "x" << WINDOW_HEIGHT << std::endl;
+		std::cout << "[Config] Cooldown: " << PLAYER_SHOOT_COOLDOWN << "ms, Bullet Speed: " << PLAYER_BULLET_SPEED << std::endl;
+		std::cout << "[Config] Player Size: " << PLAYER_WIDTH_ESTIMATE << "x" << PLAYER_HEIGHT_ESTIMATE << std::endl;
+		std::cout << "[Config] Bullet Size: " << BULLET_WIDTH_ESTIMATE << "x" << BULLET_HEIGHT_ESTIMATE << std::endl;
+	  
+		std::thread broadcaster(broadcast_loop);
+		broadcaster.detach();
 
-        while (true)
-        {
-            auto socket = std::make_shared<tcp::socket>(io_context);
-            acceptor.accept(*socket);
-            std::thread(session, socket).detach();
-        }
-    }
-    catch (std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
-    }
-    return 0;
+		while (true)
+		{
+			auto socket = std::make_shared<tcp::socket>(io_context);
+			acceptor.accept(*socket);
+			std::thread(session, socket).detach();
+		}
+	}
+	catch (std::exception& e) {
+		std::cerr << "Exception: " << e.what() << std::endl;
+	}
+	return 0;
 }

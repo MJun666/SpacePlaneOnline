@@ -32,6 +32,7 @@ inline constexpr PlayerState::Impl_::Impl_(
         x_{0},
         y_{0},
         angle_{0},
+        health_{0},
         _cached_size_{0} {}
 
 template <typename>
@@ -142,6 +143,7 @@ inline constexpr BulletState::Impl_::Impl_(
         x_{0},
         y_{0},
         type_{0},
+        angle_{0},
         _cached_size_{0} {}
 
 template <typename>
@@ -230,6 +232,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::game::PlayerState, _impl_.x_),
         PROTOBUF_FIELD_OFFSET(::game::PlayerState, _impl_.y_),
         PROTOBUF_FIELD_OFFSET(::game::PlayerState, _impl_.angle_),
+        PROTOBUF_FIELD_OFFSET(::game::PlayerState, _impl_.health_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::game::BulletState, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -242,6 +245,7 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.x_),
         PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.y_),
         PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.type_),
+        PROTOBUF_FIELD_OFFSET(::game::BulletState, _impl_.angle_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::game::EnemyState, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -273,9 +277,9 @@ static const ::_pbi::MigrationSchema
         {0, -1, -1, sizeof(::game::LoginResponse)},
         {11, -1, -1, sizeof(::game::PlayerInput)},
         {21, -1, -1, sizeof(::game::PlayerState)},
-        {33, -1, -1, sizeof(::game::BulletState)},
-        {45, -1, -1, sizeof(::game::EnemyState)},
-        {58, -1, -1, sizeof(::game::GameSnapshot)},
+        {34, -1, -1, sizeof(::game::BulletState)},
+        {47, -1, -1, sizeof(::game::EnemyState)},
+        {60, -1, -1, sizeof(::game::GameSnapshot)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::game::_LoginResponse_default_instance_._instance,
@@ -292,22 +296,23 @@ const char descriptor_table_protodef_game_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     " \001(\002\"\224\001\n\013PlayerInput\022\021\n\tplayer_id\030\001 \001(\005\022"
     "*\n\005input\030\002 \001(\0162\033.game.PlayerInput.InputT"
     "ype\"F\n\tInputType\022\010\n\004NONE\020\000\022\006\n\002UP\020\001\022\010\n\004DO"
-    "WN\020\002\022\010\n\004LEFT\020\003\022\t\n\005RIGHT\020\004\022\010\n\004FIRE\020\005\">\n\013P"
+    "WN\020\002\022\010\n\004LEFT\020\003\022\t\n\005RIGHT\020\004\022\010\n\004FIRE\020\005\"N\n\013P"
     "layerState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003"
-    " \001(\002\022\r\n\005angle\030\004 \001(\002\"=\n\013BulletState\022\n\n\002id"
-    "\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001"
-    "(\005\"L\n\nEnemyState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022"
-    "\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001(\005\022\016\n\006health\030\005 \001(\005"
-    "\"y\n\014GameSnapshot\022\"\n\007players\030\001 \003(\0132\021.game"
-    ".PlayerState\022\"\n\007bullets\030\002 \003(\0132\021.game.Bul"
-    "letState\022!\n\007enemies\030\003 \003(\0132\020.game.EnemySt"
-    "ateb\006proto3"
+    " \001(\002\022\r\n\005angle\030\004 \001(\002\022\016\n\006health\030\005 \001(\005\"L\n\013B"
+    "ulletState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003"
+    " \001(\002\022\014\n\004type\030\004 \001(\005\022\r\n\005angle\030\005 \001(\002\"L\n\nEne"
+    "myState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001("
+    "\002\022\014\n\004type\030\004 \001(\005\022\016\n\006health\030\005 \001(\005\"y\n\014GameS"
+    "napshot\022\"\n\007players\030\001 \003(\0132\021.game.PlayerSt"
+    "ate\022\"\n\007bullets\030\002 \003(\0132\021.game.BulletState\022"
+    "!\n\007enemies\030\003 \003(\0132\020.game.EnemyStateb\006prot"
+    "o3"
 };
 static ::absl::once_flag descriptor_table_game_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_game_2eproto = {
     false,
     false,
-    571,
+    602,
     descriptor_table_protodef_game_2eproto,
     "game.proto",
     &descriptor_table_game_2eproto_once,
@@ -877,9 +882,9 @@ inline void PlayerState::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, id_),
            0,
-           offsetof(Impl_, angle_) -
+           offsetof(Impl_, health_) -
                offsetof(Impl_, id_) +
-               sizeof(Impl_::angle_));
+               sizeof(Impl_::health_));
 }
 PlayerState::~PlayerState() {
   // @@protoc_insertion_point(destructor:game.PlayerState)
@@ -928,15 +933,15 @@ const ::google::protobuf::internal::ClassData* PlayerState::GetClassData() const
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 0, 2> PlayerState::_table_ = {
+const ::_pbi::TcParseTable<3, 5, 0, 0, 2> PlayerState::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -946,9 +951,7 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> PlayerState::_table_ = {
     ::_pbi::TcParser::GetTable<::game::PlayerState>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // float angle = 4;
-    {::_pbi::TcParser::FastF32S1,
-     {37, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.angle_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // int32 id = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(PlayerState, _impl_.id_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.id_)}},
@@ -958,6 +961,14 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> PlayerState::_table_ = {
     // float y = 3;
     {::_pbi::TcParser::FastF32S1,
      {29, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.y_)}},
+    // float angle = 4;
+    {::_pbi::TcParser::FastF32S1,
+     {37, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.angle_)}},
+    // int32 health = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(PlayerState, _impl_.health_), 63>(),
+     {40, 63, 0, PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.health_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -973,6 +984,9 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> PlayerState::_table_ = {
     // float angle = 4;
     {PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.angle_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
+    // int32 health = 5;
+    {PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.health_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
@@ -987,8 +1001,8 @@ PROTOBUF_NOINLINE void PlayerState::Clear() {
   (void) cached_has_bits;
 
   ::memset(&_impl_.id_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.angle_) -
-      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.angle_));
+      reinterpret_cast<char*>(&_impl_.health_) -
+      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.health_));
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -1035,6 +1049,13 @@ PROTOBUF_NOINLINE void PlayerState::Clear() {
                 4, this_._internal_angle(), target);
           }
 
+          // int32 health = 5;
+          if (this_._internal_health() != 0) {
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<5>(
+                    stream, this_._internal_health(), target);
+          }
+
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
             target =
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1077,6 +1098,11 @@ PROTOBUF_NOINLINE void PlayerState::Clear() {
             if (::absl::bit_cast<::uint32_t>(this_._internal_angle()) != 0) {
               total_size += 5;
             }
+            // int32 health = 5;
+            if (this_._internal_health() != 0) {
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+                  this_._internal_health());
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -1102,6 +1128,9 @@ void PlayerState::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goo
   if (::absl::bit_cast<::uint32_t>(from._internal_angle()) != 0) {
     _this->_impl_.angle_ = from._impl_.angle_;
   }
+  if (from._internal_health() != 0) {
+    _this->_impl_.health_ = from._impl_.health_;
+  }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1117,8 +1146,8 @@ void PlayerState::InternalSwap(PlayerState* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.angle_)
-      + sizeof(PlayerState::_impl_.angle_)
+      PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.health_)
+      + sizeof(PlayerState::_impl_.health_)
       - PROTOBUF_FIELD_OFFSET(PlayerState, _impl_.id_)>(
           reinterpret_cast<char*>(&_impl_.id_),
           reinterpret_cast<char*>(&other->_impl_.id_));
@@ -1157,9 +1186,9 @@ inline void BulletState::SharedCtor(::_pb::Arena* arena) {
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, id_),
            0,
-           offsetof(Impl_, type_) -
+           offsetof(Impl_, angle_) -
                offsetof(Impl_, id_) +
-               sizeof(Impl_::type_));
+               sizeof(Impl_::angle_));
 }
 BulletState::~BulletState() {
   // @@protoc_insertion_point(destructor:game.BulletState)
@@ -1208,15 +1237,15 @@ const ::google::protobuf::internal::ClassData* BulletState::GetClassData() const
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 0, 2> BulletState::_table_ = {
+const ::_pbi::TcParseTable<3, 5, 0, 0, 2> BulletState::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -1226,9 +1255,7 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> BulletState::_table_ = {
     ::_pbi::TcParser::GetTable<::game::BulletState>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // int32 type = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(BulletState, _impl_.type_), 63>(),
-     {32, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // int32 id = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(BulletState, _impl_.id_), 63>(),
      {8, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.id_)}},
@@ -1238,6 +1265,14 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> BulletState::_table_ = {
     // float y = 3;
     {::_pbi::TcParser::FastF32S1,
      {29, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.y_)}},
+    // int32 type = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(BulletState, _impl_.type_), 63>(),
+     {32, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_)}},
+    // float angle = 5;
+    {::_pbi::TcParser::FastF32S1,
+     {45, 63, 0, PROTOBUF_FIELD_OFFSET(BulletState, _impl_.angle_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -1253,6 +1288,9 @@ const ::_pbi::TcParseTable<2, 4, 0, 0, 2> BulletState::_table_ = {
     // int32 type = 4;
     {PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // float angle = 5;
+    {PROTOBUF_FIELD_OFFSET(BulletState, _impl_.angle_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kFloat)},
   }},
   // no aux_entries
   {{
@@ -1267,8 +1305,8 @@ PROTOBUF_NOINLINE void BulletState::Clear() {
   (void) cached_has_bits;
 
   ::memset(&_impl_.id_, 0, static_cast<::size_t>(
-      reinterpret_cast<char*>(&_impl_.type_) -
-      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.type_));
+      reinterpret_cast<char*>(&_impl_.angle_) -
+      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.angle_));
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -1315,6 +1353,13 @@ PROTOBUF_NOINLINE void BulletState::Clear() {
                     stream, this_._internal_type(), target);
           }
 
+          // float angle = 5;
+          if (::absl::bit_cast<::uint32_t>(this_._internal_angle()) != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteFloatToArray(
+                5, this_._internal_angle(), target);
+          }
+
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
             target =
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -1358,6 +1403,10 @@ PROTOBUF_NOINLINE void BulletState::Clear() {
               total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                   this_._internal_type());
             }
+            // float angle = 5;
+            if (::absl::bit_cast<::uint32_t>(this_._internal_angle()) != 0) {
+              total_size += 5;
+            }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
@@ -1383,6 +1432,9 @@ void BulletState::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::goo
   if (from._internal_type() != 0) {
     _this->_impl_.type_ = from._impl_.type_;
   }
+  if (::absl::bit_cast<::uint32_t>(from._internal_angle()) != 0) {
+    _this->_impl_.angle_ = from._impl_.angle_;
+  }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -1398,8 +1450,8 @@ void BulletState::InternalSwap(BulletState* PROTOBUF_RESTRICT other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(BulletState, _impl_.type_)
-      + sizeof(BulletState::_impl_.type_)
+      PROTOBUF_FIELD_OFFSET(BulletState, _impl_.angle_)
+      + sizeof(BulletState::_impl_.angle_)
       - PROTOBUF_FIELD_OFFSET(BulletState, _impl_.id_)>(
           reinterpret_cast<char*>(&_impl_.id_),
           reinterpret_cast<char*>(&other->_impl_.id_));
