@@ -17,6 +17,11 @@ SceneMain::~SceneMain()
 
 void SceneMain::init()
 {
+    // 重置游戏状态
+    isDead = false;
+    score = 0;
+    timerEnd = 0.0f;
+    
     //读取并获取背景音乐
     bgm=Mix_LoadMUS("assets/music/03_Racing_Through_Asteroids_Loop.ogg");
     if(bgm==NULL)
@@ -83,6 +88,8 @@ void SceneMain::init()
     itemLifeTemplate.width/=4;
     itemLifeTemplate.height/=4;
     
+    //  通知服务器：我进游戏了，给我满血复活！ ===
+    NetworkClient::GetInstance().SendInput(game::PlayerInput_InputType_RESPAWN);
 }
 void SceneMain::clean()
 {
@@ -246,6 +253,13 @@ void SceneMain::update(float deltaTime)
                explosions.push_back(explosion);
                Mix_PlayChannel(-1, sounds["player_explode"], 0);
                game.setScore(score);
+           }
+
+
+           // 【新增】复活判定
+           if (this->player.currenthealth > 0 && this->isDead)
+           {
+               this->isDead = false;  // 复活！
            }
        }
        else

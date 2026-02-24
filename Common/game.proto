@@ -18,6 +18,7 @@ message PlayerInput {
         LEFT = 3;
         RIGHT = 4;
         FIRE = 5;
+	 RESPAWN = 6;
     }
     InputType input = 2;
 }

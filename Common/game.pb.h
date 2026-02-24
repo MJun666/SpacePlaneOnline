@@ -85,6 +85,7 @@ enum PlayerInput_InputType : int {
   PlayerInput_InputType_LEFT = 3,
   PlayerInput_InputType_RIGHT = 4,
   PlayerInput_InputType_FIRE = 5,
+  PlayerInput_InputType_RESPAWN = 6,
   PlayerInput_InputType_PlayerInput_InputType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   PlayerInput_InputType_PlayerInput_InputType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -94,8 +95,8 @@ enum PlayerInput_InputType : int {
 bool PlayerInput_InputType_IsValid(int value);
 extern const uint32_t PlayerInput_InputType_internal_data_[];
 constexpr PlayerInput_InputType PlayerInput_InputType_InputType_MIN = static_cast<PlayerInput_InputType>(0);
-constexpr PlayerInput_InputType PlayerInput_InputType_InputType_MAX = static_cast<PlayerInput_InputType>(5);
-constexpr int PlayerInput_InputType_InputType_ARRAYSIZE = 5 + 1;
+constexpr PlayerInput_InputType PlayerInput_InputType_InputType_MAX = static_cast<PlayerInput_InputType>(6);
+constexpr int PlayerInput_InputType_InputType_ARRAYSIZE = 6 + 1;
 const ::google::protobuf::EnumDescriptor*
 PlayerInput_InputType_descriptor();
 template <typename T>
@@ -108,7 +109,7 @@ const std::string& PlayerInput_InputType_Name(T value) {
 template <>
 inline const std::string& PlayerInput_InputType_Name(PlayerInput_InputType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<PlayerInput_InputType_descriptor,
-                                                 0, 5>(
+                                                 0, 6>(
       static_cast<int>(value));
 }
 inline bool PlayerInput_InputType_Parse(absl::string_view name, PlayerInput_InputType* value) {
@@ -509,6 +510,7 @@ class PlayerInput final : public ::google::protobuf::Message
   static constexpr InputType LEFT = PlayerInput_InputType_LEFT;
   static constexpr InputType RIGHT = PlayerInput_InputType_RIGHT;
   static constexpr InputType FIRE = PlayerInput_InputType_FIRE;
+  static constexpr InputType RESPAWN = PlayerInput_InputType_RESPAWN;
   static inline bool InputType_IsValid(int value) {
     return PlayerInput_InputType_IsValid(value);
   }

@@ -149,20 +149,30 @@ void session(std::shared_ptr<tcp::socket> socket)
 				if (g_players.find(my_id) == g_players.end()) break;
 
 				auto& p = g_players[my_id];
-				// Object.h 里的 player speed 是 300，服务器每帧跑 33ms
+				if (input.input() == game::PlayerInput_InputType_RESPAWN) {
+					p->health = 5; // 恢复满血
+					p->x = WINDOW_WIDTH / 2.0f - PLAYER_WIDTH_ESTIMATE / 2.0f; // 重置到中间
+					p->y = WINDOW_HEIGHT - 100.0f;
+					continue; // 这一帧不需要做其他事了
+				}
+				// 只有活着才能移动！
+				if (p->health > 0)
+				{
+					// Object.h 里的 player speed 是 300，服务器每帧跑 33ms
 				// 300 * 0.033 ≈ 10 像素/帧
-				float move_speed = 300.0f * (SERVER_TICK_MS / 1000.0f);
+					float move_speed = 300.0f * (SERVER_TICK_MS / 1000.0f);
 
-				if (input.input() == game::PlayerInput_InputType_UP)    p->y -= move_speed;
-				if (input.input() == game::PlayerInput_InputType_DOWN)  p->y += move_speed;
-				if (input.input() == game::PlayerInput_InputType_LEFT)  p->x -= move_speed;
-				if (input.input() == game::PlayerInput_InputType_RIGHT) p->x += move_speed;
+					if (input.input() == game::PlayerInput_InputType_UP)    p->y -= move_speed;
+					if (input.input() == game::PlayerInput_InputType_DOWN)  p->y += move_speed;
+					if (input.input() == game::PlayerInput_InputType_LEFT)  p->x -= move_speed;
+					if (input.input() == game::PlayerInput_InputType_RIGHT) p->x += move_speed;
 
-				// 修正后的边界检查 (600x800)
-				if (p->x < 0) p->x = 0;
-				if (p->x > WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE) p->x = WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE;
-				if (p->y < 0) p->y = 0;
-				if (p->y > WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE) p->y = WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE;
+					// 修正后的边界检查 (600x800)
+					if (p->x < 0) p->x = 0;
+					if (p->x > WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE) p->x = WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE;
+					if (p->y < 0) p->y = 0;
+					if (p->y > WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE) p->y = WINDOW_HEIGHT - PLAYER_WIDTH_ESTIMATE;
+				}
 			}
 		}
 	}
@@ -194,6 +204,8 @@ void broadcast_loop()
 			for (auto& pair : g_players)
 			{
 				auto player = pair.second;
+				// 死人不能开火！
+				if (player->health <= 0) continue;
 				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
 					now - player->last_shoot_time).count();
 

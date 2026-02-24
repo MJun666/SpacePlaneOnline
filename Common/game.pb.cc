@@ -293,26 +293,26 @@ const char descriptor_table_protodef_game_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIA
     protodesc_cold) = {
     "\n\ngame.proto\022\004game\"@\n\rLoginResponse\022\017\n\007y"
     "our_id\030\001 \001(\005\022\016\n\006init_x\030\002 \001(\002\022\016\n\006init_y\030\003"
-    " \001(\002\"\224\001\n\013PlayerInput\022\021\n\tplayer_id\030\001 \001(\005\022"
+    " \001(\002\"\241\001\n\013PlayerInput\022\021\n\tplayer_id\030\001 \001(\005\022"
     "*\n\005input\030\002 \001(\0162\033.game.PlayerInput.InputT"
-    "ype\"F\n\tInputType\022\010\n\004NONE\020\000\022\006\n\002UP\020\001\022\010\n\004DO"
-    "WN\020\002\022\010\n\004LEFT\020\003\022\t\n\005RIGHT\020\004\022\010\n\004FIRE\020\005\"N\n\013P"
-    "layerState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003"
-    " \001(\002\022\r\n\005angle\030\004 \001(\002\022\016\n\006health\030\005 \001(\005\"L\n\013B"
-    "ulletState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003"
-    " \001(\002\022\014\n\004type\030\004 \001(\005\022\r\n\005angle\030\005 \001(\002\"L\n\nEne"
-    "myState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 \001(\002\022\t\n\001y\030\003 \001("
-    "\002\022\014\n\004type\030\004 \001(\005\022\016\n\006health\030\005 \001(\005\"y\n\014GameS"
-    "napshot\022\"\n\007players\030\001 \003(\0132\021.game.PlayerSt"
-    "ate\022\"\n\007bullets\030\002 \003(\0132\021.game.BulletState\022"
-    "!\n\007enemies\030\003 \003(\0132\020.game.EnemyStateb\006prot"
-    "o3"
+    "ype\"S\n\tInputType\022\010\n\004NONE\020\000\022\006\n\002UP\020\001\022\010\n\004DO"
+    "WN\020\002\022\010\n\004LEFT\020\003\022\t\n\005RIGHT\020\004\022\010\n\004FIRE\020\005\022\013\n\007R"
+    "ESPAWN\020\006\"N\n\013PlayerState\022\n\n\002id\030\001 \001(\005\022\t\n\001x"
+    "\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\r\n\005angle\030\004 \001(\002\022\016\n\006heal"
+    "th\030\005 \001(\005\"L\n\013BulletState\022\n\n\002id\030\001 \001(\005\022\t\n\001x"
+    "\030\002 \001(\002\022\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001(\005\022\r\n\005angle"
+    "\030\005 \001(\002\"L\n\nEnemyState\022\n\n\002id\030\001 \001(\005\022\t\n\001x\030\002 "
+    "\001(\002\022\t\n\001y\030\003 \001(\002\022\014\n\004type\030\004 \001(\005\022\016\n\006health\030\005"
+    " \001(\005\"y\n\014GameSnapshot\022\"\n\007players\030\001 \003(\0132\021."
+    "game.PlayerState\022\"\n\007bullets\030\002 \003(\0132\021.game"
+    ".BulletState\022!\n\007enemies\030\003 \003(\0132\020.game.Ene"
+    "myStateb\006proto3"
 };
 static ::absl::once_flag descriptor_table_game_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_game_2eproto = {
     false,
     false,
-    602,
+    615,
     descriptor_table_protodef_game_2eproto,
     "game.proto",
     &descriptor_table_game_2eproto_once,
@@ -331,9 +331,9 @@ const ::google::protobuf::EnumDescriptor* PlayerInput_InputType_descriptor() {
   return file_level_enum_descriptors_game_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t PlayerInput_InputType_internal_data_[] = {
-    393216u, 0u, };
+    458752u, 0u, };
 bool PlayerInput_InputType_IsValid(int value) {
-  return 0 <= value && value <= 5;
+  return 0 <= value && value <= 6;
 }
 #if (__cplusplus < 201703) && \
   (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
@@ -344,6 +344,7 @@ constexpr PlayerInput_InputType PlayerInput::DOWN;
 constexpr PlayerInput_InputType PlayerInput::LEFT;
 constexpr PlayerInput_InputType PlayerInput::RIGHT;
 constexpr PlayerInput_InputType PlayerInput::FIRE;
+constexpr PlayerInput_InputType PlayerInput::RESPAWN;
 constexpr PlayerInput_InputType PlayerInput::InputType_MIN;
 constexpr PlayerInput_InputType PlayerInput::InputType_MAX;
 constexpr int PlayerInput::InputType_ARRAYSIZE;
