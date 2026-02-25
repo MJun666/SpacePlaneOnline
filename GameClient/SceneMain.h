@@ -39,6 +39,7 @@ class SceneMain : public Scene
     std::mt19937 gen;//随机数引擎
     std::uniform_real_distribution<float> dis;//随机数分布
     std::map<int, RemotePlayer> other_players; // 存储所有的敌人/队友
+    std::map<int, SDL_FPoint> last_enemies; // [新增] 用来记录上一帧敌机的位置
 
     //创建每个物体模板
     ProjectilePlayer projectilePlayerTemplate;
@@ -63,7 +64,7 @@ class SceneMain : public Scene
      void updatePlayer(float deltaTime);
      void updateExplosion(float deltaTime);
      void updateItems(float deltaTime);
-    void chamgeSceneDelayed(float daltaTime,float delay);
+     void chamgeSceneDelayed(float daltaTime,float delay);
 
       //渲染
     void render() override;

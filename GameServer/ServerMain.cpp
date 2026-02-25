@@ -18,7 +18,7 @@ const int WINDOW_WIDTH = 600;  // Game.h: windowWidth=600
 const int WINDOW_HEIGHT = 800; // Game.h: windowHeight=800
 
 // 基于 Object.h 的数值
-const int PLAYER_SHOOT_COOLDOWN = 300; // Object.h: Cooldown=300
+const int PLAYER_SHOOT_COOLDOWN = 250; // Object.h: Cooldown=300
 const int PLAYER_BULLET_SPEED = 600;   // Object.h: ProjectilePlayer speed=600
 const int SERVER_TICK_MS = 33;         // 服务器每帧耗时
 
@@ -46,6 +46,7 @@ struct Player
 	// 射击计时器
 	std::chrono::steady_clock::time_point last_shoot_time;
 	int health = 5;
+	int score = 0;
 };
 
 struct Bullet {
@@ -55,6 +56,7 @@ struct Bullet {
 	int type; // 0=玩家, 1=敌人
 	float angle;
 	bool active = true;
+	int owned_id = 0;
 };
 
 struct Enemy
@@ -151,6 +153,7 @@ void session(std::shared_ptr<tcp::socket> socket)
 				auto& p = g_players[my_id];
 				if (input.input() == game::PlayerInput_InputType_RESPAWN) {
 					p->health = 5; // 恢复满血
+					p->score = 0;  // 重置分数
 					p->x = WINDOW_WIDTH / 2.0f - PLAYER_WIDTH_ESTIMATE / 2.0f; // 重置到中间
 					p->y = WINDOW_HEIGHT - 100.0f;
 					continue; // 这一帧不需要做其他事了
@@ -160,7 +163,7 @@ void session(std::shared_ptr<tcp::socket> socket)
 				{
 					// Object.h 里的 player speed 是 300，服务器每帧跑 33ms
 				// 300 * 0.033 ≈ 10 像素/帧
-					float move_speed = 300.0f * (SERVER_TICK_MS / 1000.0f);
+					float move_speed = 250.0f * (SERVER_TICK_MS / 1000.0f);
 
 					if (input.input() == game::PlayerInput_InputType_UP)    p->y -= move_speed;
 					if (input.input() == game::PlayerInput_InputType_DOWN)  p->y += move_speed;
@@ -221,6 +224,7 @@ void broadcast_loop()
 					b.vy = -PLAYER_BULLET_SPEED; // 向上
 					b.type = 0;
 					b.angle = 0.0f; //  玩家子弹不用旋转
+					b.owned_id = player->id; // 记录是谁开的枪，方便后续加分
 					g_bullets.push_back(b);
 					player->last_shoot_time = now;
 				}
@@ -313,7 +317,14 @@ void broadcast_loop()
 					{
 						e.health -= 1;
 						b.active = false;
-						if (e.health <= 0) e.active = false;
+						if (e.health <= 0)
+						{
+							e.active = false;
+							if (g_players.find(b.owned_id) != g_players.end())
+							{
+								g_players[b.owned_id]->score += 10; // 玩家加分
+							}
+						}
 						break;
 					}
 				}
@@ -369,6 +380,7 @@ void broadcast_loop()
 				p_data->set_x(pair.second->x);
 				p_data->set_y(pair.second->y);
 				p_data->set_health(pair.second->health);
+				p_data->set_score(pair.second->score);
 				sockets_to_send.push_back(pair.second->socket);
 			}
 			for (const auto& b : g_bullets) {
@@ -378,6 +390,7 @@ void broadcast_loop()
 				b_data->set_y(b.y);
 				b_data->set_type(b.type);
 				b_data->set_angle(b.angle);
+				b_data->set_owned_id(b.owned_id);
 			
 			}
 

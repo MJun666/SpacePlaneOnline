@@ -240,7 +240,7 @@ void SceneMain::update(float deltaTime)
            this->player.position.y = server_player.y();
 
            this->player.currenthealth = server_player.health();
-
+           this->score = server_player.score();
            //  死亡判定与特效触发
            if (this->player.currenthealth <= 0 && !this->isDead)
            {
@@ -275,9 +275,36 @@ void SceneMain::update(float deltaTime)
    this->spewEnemy();
    this->updateEnemy(deltaTime);*/
 
-   this->updatePlayer(deltaTime);
+  // this->updatePlayer(deltaTime);
     this->updateExplosion(deltaTime);
    this->updateItems(deltaTime);
+   // ================= [新增] 敌机死亡侦测与爆炸特效 =================
+   std::map<int, SDL_FPoint> current_enemies;
+   for (const auto& enemy : state.enemies()) {
+       current_enemies[enemy.id()] = { enemy.x(), enemy.y() };
+   }
+
+   // 查上帧活着的敌机，如果现在没了，说明它死了
+   for (auto& pair : last_enemies) {
+       int id = pair.first;
+       if (current_enemies.find(id) == current_enemies.end()) {
+           // 检查它是否是正常飞出屏幕底端 (给点余量，比如大于窗口高度减去自身高度)
+           if (pair.second.y < game.getWindowHeight() - enemyTemplate.height) {
+               // 是在半空中消失的，说明被打爆了！播放爆炸动画！
+               auto explosion = new Explosion(explosionTemplate);
+               explosion->position.x = pair.second.x + enemyTemplate.width / 2 - explosion->width / 2;
+               explosion->position.y = pair.second.y + enemyTemplate.height / 2 - explosion->height / 2;
+               explosion->startTime = SDL_GetTicks();
+               explosions.push_back(explosion);
+               Mix_PlayChannel(-1, sounds["enemy_explode"], 0);
+
+               // 注意：这里去掉了掉落道具的逻辑，因为道具我们以后统一交由服务器生成
+           }
+       }
+   }
+   // 更新记录
+   last_enemies = current_enemies;
+   // =================================================================
 
    if(isDead)
    {

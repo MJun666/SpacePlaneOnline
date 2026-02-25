@@ -273,6 +273,7 @@ class PlayerState final : public ::google::protobuf::Message
     kYFieldNumber = 3,
     kAngleFieldNumber = 4,
     kHealthFieldNumber = 5,
+    kScoreFieldNumber = 6,
   };
   // int32 id = 1;
   void clear_id() ;
@@ -324,12 +325,22 @@ class PlayerState final : public ::google::protobuf::Message
   void _internal_set_health(::int32_t value);
 
   public:
+  // int32 score = 6;
+  void clear_score() ;
+  ::int32_t score() const;
+  void set_score(::int32_t value);
+
+  private:
+  ::int32_t _internal_score() const;
+  void _internal_set_score(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game.PlayerState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 5, 0,
+      3, 6, 0,
       0, 2>
       _table_;
 
@@ -352,6 +363,7 @@ class PlayerState final : public ::google::protobuf::Message
     float y_;
     float angle_;
     ::int32_t health_;
+    ::int32_t score_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1189,6 +1201,7 @@ class BulletState final : public ::google::protobuf::Message
     kYFieldNumber = 3,
     kTypeFieldNumber = 4,
     kAngleFieldNumber = 5,
+    kOwnedIdFieldNumber = 6,
   };
   // int32 id = 1;
   void clear_id() ;
@@ -1240,12 +1253,22 @@ class BulletState final : public ::google::protobuf::Message
   void _internal_set_angle(float value);
 
   public:
+  // int32 owned_id = 6;
+  void clear_owned_id() ;
+  ::int32_t owned_id() const;
+  void set_owned_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_owned_id() const;
+  void _internal_set_owned_id(::int32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:game.BulletState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 5, 0,
+      3, 6, 0,
       0, 2>
       _table_;
 
@@ -1268,6 +1291,7 @@ class BulletState final : public ::google::protobuf::Message
     float y_;
     ::int32_t type_;
     float angle_;
+    ::int32_t owned_id_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1754,6 +1778,28 @@ inline void PlayerState::_internal_set_health(::int32_t value) {
   _impl_.health_ = value;
 }
 
+// int32 score = 6;
+inline void PlayerState::clear_score() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.score_ = 0;
+}
+inline ::int32_t PlayerState::score() const {
+  // @@protoc_insertion_point(field_get:game.PlayerState.score)
+  return _internal_score();
+}
+inline void PlayerState::set_score(::int32_t value) {
+  _internal_set_score(value);
+  // @@protoc_insertion_point(field_set:game.PlayerState.score)
+}
+inline ::int32_t PlayerState::_internal_score() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.score_;
+}
+inline void PlayerState::_internal_set_score(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.score_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // BulletState
@@ -1866,6 +1912,28 @@ inline float BulletState::_internal_angle() const {
 inline void BulletState::_internal_set_angle(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.angle_ = value;
+}
+
+// int32 owned_id = 6;
+inline void BulletState::clear_owned_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.owned_id_ = 0;
+}
+inline ::int32_t BulletState::owned_id() const {
+  // @@protoc_insertion_point(field_get:game.BulletState.owned_id)
+  return _internal_owned_id();
+}
+inline void BulletState::set_owned_id(::int32_t value) {
+  _internal_set_owned_id(value);
+  // @@protoc_insertion_point(field_set:game.BulletState.owned_id)
+}
+inline ::int32_t BulletState::_internal_owned_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.owned_id_;
+}
+inline void BulletState::_internal_set_owned_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.owned_id_ = value;
 }
 
 // -------------------------------------------------------------------
