@@ -43,7 +43,7 @@ message BulletState {
     int32 owned_id =6;
 }
 
-// === [Day 5 新增] 敌机状态 ===
+// === 敌机状态 ===
 message EnemyState {
     int32 id = 1;      // 敌机唯一ID
     float x = 2;       // 坐标 X
@@ -51,10 +51,17 @@ message EnemyState {
     int32 type = 4;    // 敌机类型 (目前只有 0，以后可以加 BOSS)
     int32 health = 5;  // 血量 (可选，用于同步爆炸效果)
 }
-
+// === 道具状态 ===
+message ItemState {
+    int32 id = 1;
+    float x = 2;
+    float y = 3;
+    int32 type = 4; // 0代表加血包，以后还可以加护盾等
+}
 // 游戏世界快照
 message GameSnapshot {
     repeated PlayerState players = 1;
     repeated BulletState bullets = 2;
-    repeated EnemyState enemies = 3;  // [新增] 敌机列表
+    repeated EnemyState enemies = 3;  //  敌机列表
+repeated ItemState items = 4; //  道具列表
 }

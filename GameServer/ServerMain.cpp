@@ -35,7 +35,10 @@ const int ENEMY_HEIGHT = 64;
 const int ENEMY_SPEED = 200; 
 const int ENEMY_SPAWN_RATE = 60; 
 // ==========================================
-
+//血包参数
+const int ITEM_WIDTH = 32;  // 加血包宽度
+const int ITEM_HEIGHT = 32; // 加血包高度
+const int ITEM_SPEED = 100; // 道具飞行速度
 struct Player
 {
 	int id;
@@ -59,6 +62,15 @@ struct Bullet {
 	int owned_id = 0;
 };
 
+struct Item {
+	int id;
+	float x, y;
+	float vx, vy;
+	int bounces_count = 3; // 碰壁反弹次数 (还原你原本的设计)
+	int type = 0; // 0 = 加血包
+	bool active = true;
+};
+
 struct Enemy
 {
 	int id; 
@@ -73,10 +85,12 @@ std::mutex g_mutex;
 std::map<int, std::shared_ptr<Player>> g_players;
 std::vector<Enemy> g_enemies;
 std::vector<Bullet> g_bullets;
+std::vector<Item> g_items;
 
 int g_next_id = 1;
 int g_bullet_next_id = 1;
 int g_enemy_next_id = 1;
+int g_item_next_id = 1;
 
 // 随机数
 std::random_device rd;
@@ -324,6 +338,19 @@ void broadcast_loop()
 							{
 								g_players[b.owned_id]->score += 10; // 玩家加分
 							}
+							// === [新增] 50% 概率掉落加血包 ===
+							if (dis(gen) < 0.5f) {
+								Item item;
+								item.id = g_item_next_id++;
+								// 从敌人中心掉落
+								item.x = e.x + ENEMY_WIDTH / 2.0f - ITEM_WIDTH / 2.0f;
+								item.y = e.y + ENEMY_HEIGHT / 2.0f - ITEM_HEIGHT / 2.0f;
+								// 随机方向
+								float random_angle = dis(gen) * 2 * 3.1415926f;
+								item.vx = cos(random_angle) * ITEM_SPEED;
+								item.vy = sin(random_angle) * ITEM_SPEED;
+								g_items.push_back(item);
+							}
 						}
 						break;
 					}
@@ -362,12 +389,54 @@ void broadcast_loop()
 				}
 			}
 		}
+		// [新增] 道具移动与拾取逻辑
+		// ==========================================
+		for (auto& item : g_items) {
+			if (!item.active) continue;
+
+			item.x += item.vx * dt;
+			item.y += item.vy * dt;
+
+			// 边缘反弹 (还原原本的逻辑)
+			if ((item.x < 0 || item.x + ITEM_WIDTH > WINDOW_WIDTH) && item.bounces_count > 0) {
+				item.vx = -item.vx;
+				item.bounces_count--;
+			}
+			if ((item.y < 0 || item.y + ITEM_HEIGHT > WINDOW_HEIGHT) && item.bounces_count > 0) {
+				item.vy = -item.vy;
+				item.bounces_count--;
+			}
+
+			// 飞出屏幕销毁
+			if (item.x + ITEM_WIDTH < 0 || item.x > WINDOW_WIDTH ||
+				item.y + ITEM_HEIGHT < 0 || item.y > WINDOW_HEIGHT) {
+				item.active = false;
+			}
+			else {
+				// 碰撞检测：玩家吃道具
+				for (auto& pair : g_players) {
+					auto p = pair.second;
+					if (p->health <= 0) continue;
+					if (CheckCollision(item.x, item.y, ITEM_WIDTH, ITEM_HEIGHT, p->x, p->y, PLAYER_WIDTH_ESTIMATE, PLAYER_HEIGHT_ESTIMATE)) {
+						item.active = false; // 道具被吃掉
+						p->health++;         // 回血
+						if (p->health > 5) p->health = 5; // 上限 5 滴血
+						p->score += 5;       // 吃道具加 5 分
+						break;
+					}
+				}
+			}
+		}
+
+		
 
 		// C. 统一清理尸体
 			g_bullets.erase(std::remove_if(g_bullets.begin(), g_bullets.end(),
 				[](const Bullet& b) { return !b.active; }), g_bullets.end());
 			g_enemies.erase(std::remove_if(g_enemies.begin(), g_enemies.end(),
 				[](const Enemy& e) { return !e.active; }), g_enemies.end());
+			// 清理被吃掉或飞出屏幕的道具
+			g_items.erase(std::remove_if(g_items.begin(), g_items.end(), [](const Item& i) { return !i.active; }), g_items.end());
 
 		// 6. 打包发送
 		game::GameSnapshot snapshot;
@@ -403,6 +472,15 @@ void broadcast_loop()
 				ed->set_y(e.y);
 				ed->set_type(0);
 				ed->set_health(e.health);
+			}
+
+			//Items
+			for (const auto& i : g_items) {
+				auto i_data = snapshot.add_items();
+				i_data->set_id(i.id);
+				i_data->set_x(i.x);
+				i_data->set_y(i.y);
+				i_data->set_type(i.type);
 			}
 
 		}

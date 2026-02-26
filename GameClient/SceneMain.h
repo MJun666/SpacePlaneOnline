@@ -78,6 +78,7 @@ class SceneMain : public Scene
     void renderRemotePlayers();  // 画其他玩家
     void renderNetworkBullets(); // 画网络子弹
     void renderNetworkEnemies();// 画网络敌机 
+    void renderNetworkItems(); //  画网络道具
 
     //其他
     void keyboardControl(float deltaTime);

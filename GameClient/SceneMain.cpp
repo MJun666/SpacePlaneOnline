@@ -239,6 +239,10 @@ void SceneMain::update(float deltaTime)
            this->player.position.x = server_player.x();
            this->player.position.y = server_player.y();
 
+           // [新增音效逻辑] 如果发现服务器发来的血量比我当前的血量多，说明我吃到道具了！
+           if (server_player.health() > this->player.currenthealth && !this->isDead) {
+               Mix_PlayChannel(-1, sounds["get_item"], 0);
+           }
            this->player.currenthealth = server_player.health();
            this->score = server_player.score();
            //  死亡判定与特效触发
@@ -277,7 +281,7 @@ void SceneMain::update(float deltaTime)
 
   // this->updatePlayer(deltaTime);
     this->updateExplosion(deltaTime);
-   this->updateItems(deltaTime);
+   //this->updateItems(deltaTime);
    // ================= [新增] 敌机死亡侦测与爆炸特效 =================
    std::map<int, SDL_FPoint> current_enemies;
    for (const auto& enemy : state.enemies()) {
@@ -349,8 +353,8 @@ void SceneMain::render()
    /* this->renderEnemy();*/
 	this->renderNetworkEnemies();
     //渲染物品
-    this->renderItems();
-
+  //  this->renderItems();
+    this->renderNetworkItems();
     //渲染爆炸
     this->renderExplosion();
 
@@ -879,6 +883,22 @@ void SceneMain::renderNetworkEnemies()
                                enemyTemplate.height };
         // 3. 绘制
         SDL_RenderCopy(game.getRenderer(), enemyTemplate.texture, NULL, &dst);
+    }
+}
+
+void SceneMain::renderNetworkItems()
+{
+    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
+    for (const auto& item : state.items())
+    {
+        SDL_Rect dst = {
+            static_cast<int>(item.x()),
+            static_cast<int>(item.y()),
+            itemLifeTemplate.width,
+            itemLifeTemplate.height
+        };
+        // 目前 type 只有 0 (Life)
+        SDL_RenderCopy(game.getRenderer(), itemLifeTemplate.texture, nullptr, &dst);
     }
 }
 
