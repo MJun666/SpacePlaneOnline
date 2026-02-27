@@ -65,6 +65,9 @@ extern GameSnapshotDefaultTypeInternal _GameSnapshot_default_instance_;
 class ItemState;
 struct ItemStateDefaultTypeInternal;
 extern ItemStateDefaultTypeInternal _ItemState_default_instance_;
+class LeaderboardEntry;
+struct LeaderboardEntryDefaultTypeInternal;
+extern LeaderboardEntryDefaultTypeInternal _LeaderboardEntry_default_instance_;
 class LoginResponse;
 struct LoginResponseDefaultTypeInternal;
 extern LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
@@ -89,6 +92,7 @@ enum PlayerInput_InputType : int {
   PlayerInput_InputType_RIGHT = 4,
   PlayerInput_InputType_FIRE = 5,
   PlayerInput_InputType_RESPAWN = 6,
+  PlayerInput_InputType_SUBMIT_SCORE = 7,
   PlayerInput_InputType_PlayerInput_InputType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   PlayerInput_InputType_PlayerInput_InputType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -98,8 +102,8 @@ enum PlayerInput_InputType : int {
 bool PlayerInput_InputType_IsValid(int value);
 extern const uint32_t PlayerInput_InputType_internal_data_[];
 constexpr PlayerInput_InputType PlayerInput_InputType_InputType_MIN = static_cast<PlayerInput_InputType>(0);
-constexpr PlayerInput_InputType PlayerInput_InputType_InputType_MAX = static_cast<PlayerInput_InputType>(6);
-constexpr int PlayerInput_InputType_InputType_ARRAYSIZE = 6 + 1;
+constexpr PlayerInput_InputType PlayerInput_InputType_InputType_MAX = static_cast<PlayerInput_InputType>(7);
+constexpr int PlayerInput_InputType_InputType_ARRAYSIZE = 7 + 1;
 const ::google::protobuf::EnumDescriptor*
 PlayerInput_InputType_descriptor();
 template <typename T>
@@ -112,7 +116,7 @@ const std::string& PlayerInput_InputType_Name(T value) {
 template <>
 inline const std::string& PlayerInput_InputType_Name(PlayerInput_InputType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<PlayerInput_InputType_descriptor,
-                                                 0, 6>(
+                                                 0, 7>(
       static_cast<int>(value));
 }
 inline bool PlayerInput_InputType_Parse(absl::string_view name, PlayerInput_InputType* value) {
@@ -526,6 +530,7 @@ class PlayerInput final : public ::google::protobuf::Message
   static constexpr InputType RIGHT = PlayerInput_InputType_RIGHT;
   static constexpr InputType FIRE = PlayerInput_InputType_FIRE;
   static constexpr InputType RESPAWN = PlayerInput_InputType_RESPAWN;
+  static constexpr InputType SUBMIT_SCORE = PlayerInput_InputType_SUBMIT_SCORE;
   static inline bool InputType_IsValid(int value) {
     return PlayerInput_InputType_IsValid(value);
   }
@@ -545,9 +550,26 @@ class PlayerInput final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
+    kNameFieldNumber = 3,
     kPlayerIdFieldNumber = 1,
     kInputFieldNumber = 2,
   };
+  // string name = 3;
+  void clear_name() ;
+  const std::string& name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_name(Arg_&& arg, Args_... args);
+  std::string* mutable_name();
+  PROTOBUF_NODISCARD std::string* release_name();
+  void set_allocated_name(std::string* value);
+
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(
+      const std::string& value);
+  std::string* _internal_mutable_name();
+
+  public:
   // int32 player_id = 1;
   void clear_player_id() ;
   ::int32_t player_id() const;
@@ -573,8 +595,8 @@ class PlayerInput final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
-      0, 2>
+      2, 3, 0,
+      29, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -591,6 +613,7 @@ class PlayerInput final : public ::google::protobuf::Message
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const PlayerInput& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr name_;
     ::int32_t player_id_;
     int input_;
     ::google::protobuf::internal::CachedSize _cached_size_;
@@ -807,6 +830,214 @@ class LoginResponse final : public ::google::protobuf::Message
     ::int32_t your_id_;
     float init_x_;
     float init_y_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_game_2eproto;
+};
+// -------------------------------------------------------------------
+
+class LeaderboardEntry final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:game.LeaderboardEntry) */ {
+ public:
+  inline LeaderboardEntry() : LeaderboardEntry(nullptr) {}
+  ~LeaderboardEntry() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(LeaderboardEntry* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(LeaderboardEntry));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR LeaderboardEntry(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline LeaderboardEntry(const LeaderboardEntry& from) : LeaderboardEntry(nullptr, from) {}
+  inline LeaderboardEntry(LeaderboardEntry&& from) noexcept
+      : LeaderboardEntry(nullptr, std::move(from)) {}
+  inline LeaderboardEntry& operator=(const LeaderboardEntry& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LeaderboardEntry& operator=(LeaderboardEntry&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LeaderboardEntry& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LeaderboardEntry* internal_default_instance() {
+    return reinterpret_cast<const LeaderboardEntry*>(
+        &_LeaderboardEntry_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 7;
+  friend void swap(LeaderboardEntry& a, LeaderboardEntry& b) { a.Swap(&b); }
+  inline void Swap(LeaderboardEntry* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LeaderboardEntry* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  LeaderboardEntry* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<LeaderboardEntry>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const LeaderboardEntry& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const LeaderboardEntry& from) { LeaderboardEntry::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(LeaderboardEntry* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "game.LeaderboardEntry"; }
+
+ protected:
+  explicit LeaderboardEntry(::google::protobuf::Arena* arena);
+  LeaderboardEntry(::google::protobuf::Arena* arena, const LeaderboardEntry& from);
+  LeaderboardEntry(::google::protobuf::Arena* arena, LeaderboardEntry&& from) noexcept
+      : LeaderboardEntry(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kNameFieldNumber = 1,
+    kScoreFieldNumber = 2,
+  };
+  // string name = 1;
+  void clear_name() ;
+  const std::string& name() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_name(Arg_&& arg, Args_... args);
+  std::string* mutable_name();
+  PROTOBUF_NODISCARD std::string* release_name();
+  void set_allocated_name(std::string* value);
+
+  private:
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(
+      const std::string& value);
+  std::string* _internal_mutable_name();
+
+  public:
+  // int32 score = 2;
+  void clear_score() ;
+  ::int32_t score() const;
+  void set_score(::int32_t value);
+
+  private:
+  ::int32_t _internal_score() const;
+  void _internal_set_score(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:game.LeaderboardEntry)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      34, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const LeaderboardEntry& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr name_;
+    ::int32_t score_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1679,6 +1910,7 @@ class GameSnapshot final : public ::google::protobuf::Message
     kBulletsFieldNumber = 2,
     kEnemiesFieldNumber = 3,
     kItemsFieldNumber = 4,
+    kLeaderboardFieldNumber = 5,
   };
   // repeated .game.PlayerState players = 1;
   int players_size() const;
@@ -1748,12 +1980,29 @@ class GameSnapshot final : public ::google::protobuf::Message
   const ::game::ItemState& items(int index) const;
   ::game::ItemState* add_items();
   const ::google::protobuf::RepeatedPtrField<::game::ItemState>& items() const;
+  // repeated .game.LeaderboardEntry leaderboard = 5;
+  int leaderboard_size() const;
+  private:
+  int _internal_leaderboard_size() const;
+
+  public:
+  void clear_leaderboard() ;
+  ::game::LeaderboardEntry* mutable_leaderboard(int index);
+  ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>* mutable_leaderboard();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>& _internal_leaderboard() const;
+  ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>* _internal_mutable_leaderboard();
+  public:
+  const ::game::LeaderboardEntry& leaderboard(int index) const;
+  ::game::LeaderboardEntry* add_leaderboard();
+  const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>& leaderboard() const;
   // @@protoc_insertion_point(class_scope:game.GameSnapshot)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 4, 4,
+      3, 5, 5,
       0, 2>
       _table_;
 
@@ -1775,6 +2024,7 @@ class GameSnapshot final : public ::google::protobuf::Message
     ::google::protobuf::RepeatedPtrField< ::game::BulletState > bullets_;
     ::google::protobuf::RepeatedPtrField< ::game::EnemyState > enemies_;
     ::google::protobuf::RepeatedPtrField< ::game::ItemState > items_;
+    ::google::protobuf::RepeatedPtrField< ::game::LeaderboardEntry > leaderboard_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1910,6 +2160,54 @@ inline ::game::PlayerInput_InputType PlayerInput::_internal_input() const {
 inline void PlayerInput::_internal_set_input(::game::PlayerInput_InputType value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.input_ = value;
+}
+
+// string name = 3;
+inline void PlayerInput::clear_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.ClearToEmpty();
+}
+inline const std::string& PlayerInput::name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game.PlayerInput.name)
+  return _internal_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void PlayerInput::set_name(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:game.PlayerInput.name)
+}
+inline std::string* PlayerInput::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:game.PlayerInput.name)
+  return _s;
+}
+inline const std::string& PlayerInput::_internal_name() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.name_.Get();
+}
+inline void PlayerInput::_internal_set_name(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.Set(value, GetArena());
+}
+inline std::string* PlayerInput::_internal_mutable_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.name_.Mutable( GetArena());
+}
+inline std::string* PlayerInput::release_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:game.PlayerInput.name)
+  return _impl_.name_.Release();
+}
+inline void PlayerInput::set_allocated_name(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.name_.IsDefault()) {
+    _impl_.name_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:game.PlayerInput.name)
 }
 
 // -------------------------------------------------------------------
@@ -2588,6 +2886,129 @@ inline ::google::protobuf::RepeatedPtrField<::game::ItemState>*
 GameSnapshot::_internal_mutable_items() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.items_;
+}
+
+// repeated .game.LeaderboardEntry leaderboard = 5;
+inline int GameSnapshot::_internal_leaderboard_size() const {
+  return _internal_leaderboard().size();
+}
+inline int GameSnapshot::leaderboard_size() const {
+  return _internal_leaderboard_size();
+}
+inline void GameSnapshot::clear_leaderboard() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.leaderboard_.Clear();
+}
+inline ::game::LeaderboardEntry* GameSnapshot::mutable_leaderboard(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:game.GameSnapshot.leaderboard)
+  return _internal_mutable_leaderboard()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>* GameSnapshot::mutable_leaderboard()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:game.GameSnapshot.leaderboard)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_leaderboard();
+}
+inline const ::game::LeaderboardEntry& GameSnapshot::leaderboard(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game.GameSnapshot.leaderboard)
+  return _internal_leaderboard().Get(index);
+}
+inline ::game::LeaderboardEntry* GameSnapshot::add_leaderboard() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::game::LeaderboardEntry* _add = _internal_mutable_leaderboard()->Add();
+  // @@protoc_insertion_point(field_add:game.GameSnapshot.leaderboard)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>& GameSnapshot::leaderboard() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:game.GameSnapshot.leaderboard)
+  return _internal_leaderboard();
+}
+inline const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>&
+GameSnapshot::_internal_leaderboard() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.leaderboard_;
+}
+inline ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>*
+GameSnapshot::_internal_mutable_leaderboard() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.leaderboard_;
+}
+
+// -------------------------------------------------------------------
+
+// LeaderboardEntry
+
+// string name = 1;
+inline void LeaderboardEntry::clear_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.ClearToEmpty();
+}
+inline const std::string& LeaderboardEntry::name() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game.LeaderboardEntry.name)
+  return _internal_name();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void LeaderboardEntry::set_name(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:game.LeaderboardEntry.name)
+}
+inline std::string* LeaderboardEntry::mutable_name() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_name();
+  // @@protoc_insertion_point(field_mutable:game.LeaderboardEntry.name)
+  return _s;
+}
+inline const std::string& LeaderboardEntry::_internal_name() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.name_.Get();
+}
+inline void LeaderboardEntry::_internal_set_name(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.Set(value, GetArena());
+}
+inline std::string* LeaderboardEntry::_internal_mutable_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.name_.Mutable( GetArena());
+}
+inline std::string* LeaderboardEntry::release_name() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:game.LeaderboardEntry.name)
+  return _impl_.name_.Release();
+}
+inline void LeaderboardEntry::set_allocated_name(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.name_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.name_.IsDefault()) {
+    _impl_.name_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:game.LeaderboardEntry.name)
+}
+
+// int32 score = 2;
+inline void LeaderboardEntry::clear_score() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.score_ = 0;
+}
+inline ::int32_t LeaderboardEntry::score() const {
+  // @@protoc_insertion_point(field_get:game.LeaderboardEntry.score)
+  return _internal_score();
+}
+inline void LeaderboardEntry::set_score(::int32_t value) {
+  _internal_set_score(value);
+  // @@protoc_insertion_point(field_set:game.LeaderboardEntry.score)
+}
+inline ::int32_t LeaderboardEntry::_internal_score() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.score_;
+}
+inline void LeaderboardEntry::_internal_set_score(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.score_ = value;
 }
 
 #ifdef __GNUC__

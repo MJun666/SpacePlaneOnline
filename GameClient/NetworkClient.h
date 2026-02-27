@@ -22,6 +22,8 @@ public:
     // 获取最新的游戏状态 (线程安全)
     game::GameSnapshot GetState();
 
+    void SendSubmitScore(const std::string& name);
+
     int GetMyID() { return my_player_id_; }
 
 private:

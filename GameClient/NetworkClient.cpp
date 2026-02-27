@@ -65,3 +65,18 @@ game::GameSnapshot NetworkClient::GetState() {
     std::lock_guard<std::mutex> lock(data_mutex_);
     return current_snapshot_;
 }
+
+void NetworkClient::SendSubmitScore(const std::string& name)
+{
+    game::PlayerInput input;
+    input.set_player_id(my_player_id_);
+    input.set_input(game::PlayerInput_InputType_SUBMIT_SCORE);
+    input.set_name(name);
+
+    std::string data;
+    input.SerializeToString(&data);
+    try {
+        boost::asio::write(socket_, boost::asio::buffer(data));
+    }
+    catch(...){}
+}

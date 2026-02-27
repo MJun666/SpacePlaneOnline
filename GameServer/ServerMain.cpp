@@ -6,6 +6,7 @@
 #include <chrono>
 #include<random>
 #include<cmath>
+#include<algorithm>
 #include <boost/asio.hpp>
 #include "game.pb.h"
 
@@ -80,12 +81,18 @@ struct Enemy
 	int health = 2;
 };
 
+struct LeaderboardEntryData {
+	std::string name;
+	int score;
+};
+
 // 全局变量
 std::mutex g_mutex;
 std::map<int, std::shared_ptr<Player>> g_players;
 std::vector<Enemy> g_enemies;
 std::vector<Bullet> g_bullets;
 std::vector<Item> g_items;
+std::vector<LeaderboardEntryData> g_leaderboard;
 
 int g_next_id = 1;
 int g_bullet_next_id = 1;
@@ -165,6 +172,30 @@ void session(std::shared_ptr<tcp::socket> socket)
 				if (g_players.find(my_id) == g_players.end()) break;
 
 				auto& p = g_players[my_id];
+				// ===  处理提交分数的逻辑 ===
+				if (input.input() == game::PlayerInput_InputType_SUBMIT_SCORE)
+				{
+					LeaderboardEntryData entry;
+					entry.name = input.name();
+					entry.score = p->score;
+					g_leaderboard.push_back(entry);
+
+					std::sort(g_leaderboard.begin(), g_leaderboard.end(),
+						[](const LeaderboardEntryData& a, const LeaderboardEntryData& b) {
+							return a.score >
+								
+								b.score;
+						});
+					// 只保留全服前 10 名
+					if (g_leaderboard.size() > 10) {
+						g_leaderboard.resize(10);
+					}
+
+					p->score = 0; // 提交完把当前分数清空，防止这局重复提交
+					continue;
+				}
+
+				//==重新开始游戏逻辑==
 				if (input.input() == game::PlayerInput_InputType_RESPAWN) {
 					p->health = 5; // 恢复满血
 					p->score = 0;  // 重置分数
@@ -339,7 +370,7 @@ void broadcast_loop()
 								g_players[b.owned_id]->score += 10; // 玩家加分
 							}
 							// === [新增] 50% 概率掉落加血包 ===
-							if (dis(gen) < 0.5f) {
+							if (dis(gen) < 0.1f) {
 								Item item;
 								item.id = g_item_next_id++;
 								// 从敌人中心掉落
@@ -481,6 +512,13 @@ void broadcast_loop()
 				i_data->set_x(i.x);
 				i_data->set_y(i.y);
 				i_data->set_type(i.type);
+			}
+			//Leaderboard
+			for (const auto& entry : g_leaderboard)
+			{
+				auto l_data = snapshot.add_leaderboard();
+				l_data->set_name(entry.name);
+				l_data->set_score(entry.score);
 			}
 
 		}

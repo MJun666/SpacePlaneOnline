@@ -2,6 +2,8 @@
 #include"SceneMain.h"
 #include "Game.h"
 #include <string>
+#include "NetworkClient.h"
+#include "game.pb.h"
 
 void SceneEnd::clean()
 {
@@ -31,7 +33,8 @@ void SceneEnd::handleEvent(SDL_Event *event)
                 {
                     name="NoName";
                 }
-              game.insertLeaderBoard(game.getScore(),name);
+            //  game.insertLeaderBoard(game.getScore(),name);
+                NetworkClient::GetInstance().SendSubmitScore(name);
             }
             if(event->key.keysym.scancode==SDL_SCANCODE_BACKSPACE)
             {
@@ -141,13 +144,17 @@ void SceneEnd::renderPhase1()
 
 void SceneEnd::renderPhase2()
 {
-    game.renderTextCentered("rank",0.05f,true);
+    game.renderTextCentered("排行榜",0.05f,true);
     auto posy=0.2f*game.getWindowHeight();
     int i = 1;
-    for(auto item :game.getLeaderBoard())
+
+    game::GameSnapshot state = NetworkClient::GetInstance().GetState();
+
+
+    for(auto item :state.leaderboard())
     {
-        std::string name = std::to_string (i)+". "+ item.second;
-        std::string score = std::to_string (item.first);
+        std::string name = std::to_string (i)+". "+ item.name();
+        std::string score = std::to_string (item.score());
         game.renderTextPosition(name,100,posy);
         game.renderTextPosition(score,100,posy,false);
         posy+=45;

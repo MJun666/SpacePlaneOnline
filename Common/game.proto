@@ -19,8 +19,10 @@ message PlayerInput {
         RIGHT = 4;
         FIRE = 5;
 	 RESPAWN = 6;
+	 SUBMIT_SCORE = 7; // 提交分数的指令
     }
     InputType input = 2;
+    string name = 3;      //  提交分数时附带的玩家名字
 }
 
 // 玩家状态
@@ -64,4 +66,10 @@ message GameSnapshot {
     repeated BulletState bullets = 2;
     repeated EnemyState enemies = 3;  //  敌机列表
 repeated ItemState items = 4; //  道具列表
+repeated LeaderboardEntry leaderboard = 5; //  全服排行榜
+}
+// === 排行榜条目 ===
+message LeaderboardEntry {
+    string name = 1;
+    int32 score = 2;
 }
