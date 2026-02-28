@@ -19,8 +19,8 @@ const int WINDOW_WIDTH = 600;  // Game.h: windowWidth=600
 const int WINDOW_HEIGHT = 800; // Game.h: windowHeight=800
 
 // 基于 Object.h 的数值
-const int PLAYER_SHOOT_COOLDOWN = 250; // Object.h: Cooldown=300
-const int PLAYER_BULLET_SPEED = 600;   // Object.h: ProjectilePlayer speed=600
+const int PLAYER_SHOOT_COOLDOWN = 300; // Object.h: Cooldown=300
+const int PLAYER_BULLET_SPEED = 1000;   // Object.h:
 const int SERVER_TICK_MS = 33;         // 服务器每帧耗时
 
 
@@ -238,11 +238,30 @@ void session(std::shared_ptr<tcp::socket> socket)
 void broadcast_loop()
 {
 	int frame_count = 0;
+	int spawn_counter = 0; // 专门用来计时的变量，比直接取余数更安全
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(SERVER_TICK_MS));
 		float dt = SERVER_TICK_MS / 1000.0f;
 		frame_count++;
+		spawn_counter++;
+
+		// ==========================================
+		// [新增] 无尽风暴：动态难度计算系统
+		// 服务器每秒约 30 帧。每 300 帧 (约 10 秒) 难度提升 1 级！
+		// ==========================================
+		int difficulty_level = frame_count / 150;
+
+		// 1. 动态生成频率：默认 60 帧，每升一级减 2 帧。最快缩短到 15 帧刷一只 (满屏怪)！
+		int current_spawn_rate = 60 - (difficulty_level * 2);
+		if (current_spawn_rate < 15) current_spawn_rate = 15;
+
+		// 2. 动态敌机射速：默认 2000ms，每升一级减 100ms。最快缩短到 500ms 射一次 (弹幕雨)！
+		int current_enemy_cooldown = 2000 - (difficulty_level * 200);
+		if (current_enemy_cooldown < 500) current_enemy_cooldown = 500;
+		// ==========================================
+
+
 		// A. 自动射击 & 子弹移动
 		{
 			std::lock_guard<std::mutex> lock(g_mutex);
@@ -276,8 +295,10 @@ void broadcast_loop()
 			}
 
 			// 2. 敌机生成 (每隔一段时间生成一个)
-			if (frame_count % ENEMY_SPAWN_RATE == 0)
+			//if (frame_count % ENEMY_SPAWN_RATE == 0)
+			if (spawn_counter >= current_spawn_rate)
 			{
+				spawn_counter = 0;
 				Enemy e;
 				e.id = g_enemy_next_id++;
 				e.x=dis(gen) *(WINDOW_WIDTH - ENEMY_WIDTH); // 随机生成在窗口内
@@ -294,7 +315,8 @@ void broadcast_loop()
 				it->y += ENEMY_SPEED * dt;
 				// B. 开火 (瞄准玩家)
 				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - it->last_shoot_time).count();
-				if (duration > 2000)
+				//if (duration > 2000)
+				if (duration > current_enemy_cooldown)
 				{
 					auto target = GetNearestPlayer(it->x, it->y);
 					if (target)
@@ -369,8 +391,8 @@ void broadcast_loop()
 							{
 								g_players[b.owned_id]->score += 10; // 玩家加分
 							}
-							// === [新增] 50% 概率掉落加血包 ===
-							if (dis(gen) < 0.1f) {
+							// === 概率掉落加血包 ===
+							if (dis(gen) < 0.25f) {
 								Item item;
 								item.id = g_item_next_id++;
 								// 从敌人中心掉落
@@ -420,7 +442,7 @@ void broadcast_loop()
 				}
 			}
 		}
-		// [新增] 道具移动与拾取逻辑
+		//  道具移动与拾取逻辑
 		// ==========================================
 		for (auto& item : g_items) {
 			if (!item.active) continue;
