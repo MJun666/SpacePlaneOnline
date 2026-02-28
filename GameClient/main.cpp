@@ -5,12 +5,11 @@
 #include<SDL2/SDL_mixer.h>
 #include<SDL2/SDL_ttf.h>
 #include "Game.h"
-int main(int , char** )
+
+int main(int, char**)
 {
-    
     Game& game=Game::GetInstance();
     game.init();
     game.run();
-   
     return 0;
 }

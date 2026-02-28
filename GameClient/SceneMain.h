@@ -38,58 +38,31 @@ class SceneMain : public Scene
     bool isDead=false;
     std::mt19937 gen;//随机数引擎
     std::uniform_real_distribution<float> dis;//随机数分布
-    std::map<int, RemotePlayer> other_players; // 存储所有的敌人/队友
-    std::map<int, SDL_FPoint> last_enemies; // [新增] 用来记录上一帧敌机的位置
+    std::map<int, RemotePlayer> other_players;
+    std::map<int, SDL_FPoint> last_enemies;
 
-    //创建每个物体模板
     ProjectilePlayer projectilePlayerTemplate;
     Enemy enemyTemplate;
     ProjectileEnemy projectileEnemyTemplate;
     Explosion explosionTemplate;
     Item itemLifeTemplate;
 
-    //创建每个物体容器
-    std::list<ProjectilePlayer*> projectilePlayer;
-    std::list<Enemy*> enemies;
-    std::list<ProjectileEnemy*> projectileEnemy;
     std::list<Explosion*> explosions;
-    std::list<Item*> items;
-    std::map<std::string, Mix_Chunk*> sounds;//音效
+    std::map<std::string, Mix_Chunk*> sounds;
     
-     //更新
-     void update(float deltaTime) override;
-     void updateProjectilePlayer(float deltaTime);
-     void updateEnemy(float deltaTime);
-     void updateProjectileEnemy(float deltaTime);
-     void updatePlayer(float deltaTime);
-     void updateExplosion(float deltaTime);
-     void updateItems(float deltaTime);
-     void chamgeSceneDelayed(float daltaTime,float delay);
+    void update(float deltaTime) override;
+    void updateExplosion(float deltaTime);
+    void chamgeSceneDelayed(float daltaTime,float delay);
 
-      //渲染
     void render() override;
-    void renderProjectilePlayer();
-    void renderEnemy();
-    void renderProjectileEnemy();
     void renderExplosion();
-    void renderItems();
     void renderUi();
-    // ===  封装好的网络渲染函数 ===
-    void renderRemotePlayers();  // 画其他玩家
-    void renderNetworkBullets(); // 画网络子弹
-    void renderNetworkEnemies();// 画网络敌机 
-    void renderNetworkItems(); //  画网络道具
+    void renderNetworkBullets();
+    void renderNetworkEnemies();
+    void renderNetworkItems();
 
-    //其他
     void keyboardControl(float deltaTime);
-    void shootPlayer();
-    void spewEnemy();
-    void shootEnemy(Enemy* enemy);
-    SDL_FPoint getDirection( Enemy* enemy);
-    void enemyExplode(Enemy* enemy);
-    void dropItem(Enemy* enemy);
-    void playerGetItem(Item* item);
-    void shoot();//自动射击
+    void shoot();
 
 };
 

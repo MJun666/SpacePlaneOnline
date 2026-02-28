@@ -68,6 +68,9 @@ extern ItemStateDefaultTypeInternal _ItemState_default_instance_;
 class LeaderboardEntry;
 struct LeaderboardEntryDefaultTypeInternal;
 extern LeaderboardEntryDefaultTypeInternal _LeaderboardEntry_default_instance_;
+class LeaderboardSaveData;
+struct LeaderboardSaveDataDefaultTypeInternal;
+extern LeaderboardSaveDataDefaultTypeInternal _LeaderboardSaveData_default_instance_;
 class LoginResponse;
 struct LoginResponseDefaultTypeInternal;
 extern LoginResponseDefaultTypeInternal _LoginResponse_default_instance_;
@@ -1760,6 +1763,203 @@ class BulletState final : public ::google::protobuf::Message
 };
 // -------------------------------------------------------------------
 
+class LeaderboardSaveData final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:game.LeaderboardSaveData) */ {
+ public:
+  inline LeaderboardSaveData() : LeaderboardSaveData(nullptr) {}
+  ~LeaderboardSaveData() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(LeaderboardSaveData* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(LeaderboardSaveData));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR LeaderboardSaveData(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline LeaderboardSaveData(const LeaderboardSaveData& from) : LeaderboardSaveData(nullptr, from) {}
+  inline LeaderboardSaveData(LeaderboardSaveData&& from) noexcept
+      : LeaderboardSaveData(nullptr, std::move(from)) {}
+  inline LeaderboardSaveData& operator=(const LeaderboardSaveData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LeaderboardSaveData& operator=(LeaderboardSaveData&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LeaderboardSaveData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LeaderboardSaveData* internal_default_instance() {
+    return reinterpret_cast<const LeaderboardSaveData*>(
+        &_LeaderboardSaveData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 8;
+  friend void swap(LeaderboardSaveData& a, LeaderboardSaveData& b) { a.Swap(&b); }
+  inline void Swap(LeaderboardSaveData* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LeaderboardSaveData* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  LeaderboardSaveData* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<LeaderboardSaveData>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const LeaderboardSaveData& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const LeaderboardSaveData& from) { LeaderboardSaveData::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(LeaderboardSaveData* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "game.LeaderboardSaveData"; }
+
+ protected:
+  explicit LeaderboardSaveData(::google::protobuf::Arena* arena);
+  LeaderboardSaveData(::google::protobuf::Arena* arena, const LeaderboardSaveData& from);
+  LeaderboardSaveData(::google::protobuf::Arena* arena, LeaderboardSaveData&& from) noexcept
+      : LeaderboardSaveData(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kEntriesFieldNumber = 1,
+  };
+  // repeated .game.LeaderboardEntry entries = 1;
+  int entries_size() const;
+  private:
+  int _internal_entries_size() const;
+
+  public:
+  void clear_entries() ;
+  ::game::LeaderboardEntry* mutable_entries(int index);
+  ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>* mutable_entries();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>& _internal_entries() const;
+  ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>* _internal_mutable_entries();
+  public:
+  const ::game::LeaderboardEntry& entries(int index) const;
+  ::game::LeaderboardEntry* add_entries();
+  const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>& entries() const;
+  // @@protoc_insertion_point(class_scope:game.LeaderboardSaveData)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const LeaderboardSaveData& from_msg);
+    ::google::protobuf::RepeatedPtrField< ::game::LeaderboardEntry > entries_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_game_2eproto;
+};
+// -------------------------------------------------------------------
+
 class GameSnapshot final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:game.GameSnapshot) */ {
  public:
@@ -3009,6 +3209,59 @@ inline ::int32_t LeaderboardEntry::_internal_score() const {
 inline void LeaderboardEntry::_internal_set_score(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.score_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// LeaderboardSaveData
+
+// repeated .game.LeaderboardEntry entries = 1;
+inline int LeaderboardSaveData::_internal_entries_size() const {
+  return _internal_entries().size();
+}
+inline int LeaderboardSaveData::entries_size() const {
+  return _internal_entries_size();
+}
+inline void LeaderboardSaveData::clear_entries() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.entries_.Clear();
+}
+inline ::game::LeaderboardEntry* LeaderboardSaveData::mutable_entries(int index)
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable:game.LeaderboardSaveData.entries)
+  return _internal_mutable_entries()->Mutable(index);
+}
+inline ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>* LeaderboardSaveData::mutable_entries()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:game.LeaderboardSaveData.entries)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_entries();
+}
+inline const ::game::LeaderboardEntry& LeaderboardSaveData::entries(int index) const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:game.LeaderboardSaveData.entries)
+  return _internal_entries().Get(index);
+}
+inline ::game::LeaderboardEntry* LeaderboardSaveData::add_entries() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::game::LeaderboardEntry* _add = _internal_mutable_entries()->Add();
+  // @@protoc_insertion_point(field_add:game.LeaderboardSaveData.entries)
+  return _add;
+}
+inline const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>& LeaderboardSaveData::entries() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:game.LeaderboardSaveData.entries)
+  return _internal_entries();
+}
+inline const ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>&
+LeaderboardSaveData::_internal_entries() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.entries_;
+}
+inline ::google::protobuf::RepeatedPtrField<::game::LeaderboardEntry>*
+LeaderboardSaveData::_internal_mutable_entries() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.entries_;
 }
 
 #ifdef __GNUC__

@@ -73,3 +73,7 @@ message LeaderboardEntry {
     string name = 1;
     int32 score = 2;
 }
+// === 用于服务器本地存档的结构 ===
+message LeaderboardSaveData {
+    repeated LeaderboardEntry entries = 1;
+}

@@ -33,20 +33,15 @@ void SceneEnd::handleEvent(SDL_Event *event)
                 {
                     name="NoName";
                 }
-            //  game.insertLeaderBoard(game.getScore(),name);
                 NetworkClient::GetInstance().SendSubmitScore(name);
             }
             if(event->key.keysym.scancode==SDL_SCANCODE_BACKSPACE)
             {
-                
-                    removeLastUTF8Char(name);
-                
+                removeLastUTF8Char(name);
             }
-    
         }
     }
     else{
-        //TODO
         if(event->type==SDL_KEYDOWN)
         {
             if(event->key.keysym.scancode==SDL_SCANCODE_SPACE)
@@ -108,10 +103,10 @@ void SceneEnd::removeLastUTF8Char(std::string& str)
         return;
     }
     auto lastChar = str.back();
-    if((lastChar & 0b10000000 ) == 0b10000000)//判断是否为中文后续字节
+    if((lastChar & 0b10000000 ) == 0b10000000)
     {
         str.pop_back();
-        while((str.back() & 0b11000000 )!= 0b11000000)//判断是否为中文开头字节
+        while((str.back() & 0b11000000 )!= 0b11000000)
         {
             str.pop_back();
         }
@@ -123,12 +118,11 @@ void SceneEnd::renderPhase1()
 {
     std::string scoreText = "你的得分是： " + std::to_string(game.getScore());
     std::string endText = "GAME OVER!";
-    std::string restartText = "按下空格重新开始游戏";//"按下空格重新开始游戏";
+    std::string restartText = "按下空格重新开始游戏";
 
     game.renderTextCentered(scoreText, 0.1f, false);
     game.renderTextCentered(endText, 0.4f, true);
     game.renderTextCentered(restartText, 0.6f, false);
-
 
     if(name!="")
     {
@@ -150,7 +144,6 @@ void SceneEnd::renderPhase2()
 
     game::GameSnapshot state = NetworkClient::GetInstance().GetState();
 
-
     for(auto item :state.leaderboard())
     {
         std::string name = std::to_string (i)+". "+ item.name();
@@ -161,7 +154,6 @@ void SceneEnd::renderPhase2()
         i++;
     }
     if(blinkTimer<0.5f){
-    game.renderTextCentered("按下空格重新开始游戏",0.8f,false);
-       // game.renderTextCentered("start", 0.8f, false);
+        game.renderTextCentered("按下空格重新开始游戏",0.8f,false);
     }
 }

@@ -8,38 +8,27 @@
 #include<cmath>
 #include<algorithm>
 #include <boost/asio.hpp>
+#include <fstream>
 #include "game.pb.h"
 
 using boost::asio::ip::tcp;
 
-// ==========================================
-// 1. 基于你 Object.h 和 Game.h 的物理常量
-// ==========================================
-const int WINDOW_WIDTH = 600;  // Game.h: windowWidth=600
-const int WINDOW_HEIGHT = 800; // Game.h: windowHeight=800
-
-// 基于 Object.h 的数值
-const int PLAYER_SHOOT_COOLDOWN = 300; // Object.h: Cooldown=300
-const int PLAYER_BULLET_SPEED = 1000;   // Object.h:
-const int SERVER_TICK_MS = 33;         // 服务器每帧耗时
-
-
-
+const int WINDOW_WIDTH = 600;
+const int WINDOW_HEIGHT = 800;
+const int PLAYER_SHOOT_COOLDOWN = 300;
+const int PLAYER_BULLET_SPEED = 1000;
+const int SERVER_TICK_MS = 33;
 const int PLAYER_WIDTH_ESTIMATE = 48;
 const int PLAYER_HEIGHT_ESTIMATE = 37;
 const int BULLET_WIDTH_ESTIMATE = 20;
 const int BULLET_HEIGHT_ESTIMATE = 31;
-
-// 敌机参数
-const int ENEMY_WIDTH = 64;   
+const int ENEMY_WIDTH = 64;
 const int ENEMY_HEIGHT = 64;
-const int ENEMY_SPEED = 200; 
-const int ENEMY_SPAWN_RATE = 60; 
-// ==========================================
-//血包参数
-const int ITEM_WIDTH = 32;  // 加血包宽度
-const int ITEM_HEIGHT = 32; // 加血包高度
-const int ITEM_SPEED = 100; // 道具飞行速度
+const int ENEMY_SPEED = 200;
+const int ENEMY_SPAWN_RATE = 60;
+const int ITEM_WIDTH = 32;
+const int ITEM_HEIGHT = 32;
+const int ITEM_SPEED = 100;
 struct Player
 {
 	int id;
@@ -47,8 +36,8 @@ struct Player
 	float y = WINDOW_HEIGHT - 100.0f; // 靠下
 	std::shared_ptr<tcp::socket> socket;
 
-	// 射击计时器
 	std::chrono::steady_clock::time_point last_shoot_time;
+	std::chrono::steady_clock::time_point game_start_time;
 	int health = 5;
 	int score = 0;
 };
@@ -57,7 +46,7 @@ struct Bullet {
 	int id;
 	float x, y;
 	float vx, vy;
-	int type; // 0=玩家, 1=敌人
+	int type;
 	float angle;
 	bool active = true;
 	int owned_id = 0;
@@ -67,8 +56,8 @@ struct Item {
 	int id;
 	float x, y;
 	float vx, vy;
-	int bounces_count = 3; // 碰壁反弹次数 (还原你原本的设计)
-	int type = 0; // 0 = 加血包
+	int bounces_count = 3;
+	int type = 0;
 	bool active = true;
 };
 
@@ -99,12 +88,10 @@ int g_bullet_next_id = 1;
 int g_enemy_next_id = 1;
 int g_item_next_id = 1;
 
-// 随机数
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_real_distribution<float>  dis(0.0f,1.0f);  
+std::uniform_real_distribution<float>  dis(0.0f,1.0f);
 
-//  矩形碰撞检测函数
 bool CheckCollision(float x1, float y1, float w1, float h1,
 	float x2, float y2, float w2, float h2)
 {
@@ -112,7 +99,40 @@ bool CheckCollision(float x1, float y1, float w1, float h1,
 		y1 < y2 + h2 && y1 + h1 > y2);
 }
 
-// --- 辅助：寻找最近的玩家 ---
+const std::string SAVE_FILE = "leaderboard_save.dat";
+
+void SaveLeaderboard() {
+	game::LeaderboardSaveData save_data;
+	for (const auto& entry : g_leaderboard)
+	{
+		auto e = save_data.add_entries();
+		e->set_name(entry.name);
+		e->set_score(entry.score);
+	}
+
+	std::ofstream out(SAVE_FILE, std::ios::binary);
+	if (out) {
+		save_data.SerializeToOstream(&out);
+	}
+}
+
+void LoadLeaderboard() {
+	std::ifstream in(SAVE_FILE, std::ios::binary);
+	if (in) {
+		game::LeaderboardSaveData save_data;
+		if (save_data.ParseFromIstream(&in)) {
+			g_leaderboard.clear();
+			for (const auto& e : save_data.entries()) {
+				g_leaderboard.push_back({ e.name(), e.score() });
+			}
+			std::cout << "[Server] Loaded " << g_leaderboard.size() << " records from save file." << std::endl;
+		}
+	}
+	else {
+		std::cout << "[Server] No existing save file found. Starting fresh." << std::endl;
+	}
+}
+
 std::shared_ptr<Player>GetNearestPlayer(float ex, float ey)
 {
 	std::shared_ptr<Player> target = nullptr;
@@ -121,19 +141,17 @@ std::shared_ptr<Player>GetNearestPlayer(float ex, float ey)
 	{
 		float dx = pair.second->x - ex;
 		float dy = pair.second->y - ey;
-		float dist = dx * dx + dy * dy; // 距离的平方
+		float dist = dx * dx + dy * dy;
 		if (min_dist > dist)
 		{
 			min_dist = dist;
 			target = pair.second;
 		}
 	}
-
 	return target;
 }
 
 
-// ---  处理客户端连接 ---
 void session(std::shared_ptr<tcp::socket> socket)
 {
 	int my_id = 0;
@@ -144,11 +162,11 @@ void session(std::shared_ptr<tcp::socket> socket)
 			auto player = std::make_shared<Player>();
 			player->id = my_id;
 			player->socket = socket;
+			player->game_start_time = std::chrono::steady_clock::now();
 			g_players[my_id] = player;
 		}
 		std::cout << "[Server] Player " << my_id << " joined!" << std::endl;
 
-		// 发送登录响应
 		game::LoginResponse login_msg;
 		login_msg.set_your_id(my_id);
 		login_msg.set_init_x(g_players[my_id]->x);
@@ -172,7 +190,7 @@ void session(std::shared_ptr<tcp::socket> socket)
 				if (g_players.find(my_id) == g_players.end()) break;
 
 				auto& p = g_players[my_id];
-				// ===  处理提交分数的逻辑 ===
+				
 				if (input.input() == game::PlayerInput_InputType_SUBMIT_SCORE)
 				{
 					LeaderboardEntryData entry;
@@ -182,32 +200,29 @@ void session(std::shared_ptr<tcp::socket> socket)
 
 					std::sort(g_leaderboard.begin(), g_leaderboard.end(),
 						[](const LeaderboardEntryData& a, const LeaderboardEntryData& b) {
-							return a.score >
-								
-								b.score;
+							return a.score > b.score;
 						});
-					// 只保留全服前 10 名
+					
 					if (g_leaderboard.size() > 10) {
 						g_leaderboard.resize(10);
 					}
-
-					p->score = 0; // 提交完把当前分数清空，防止这局重复提交
+					
+					SaveLeaderboard();
+					p->score = 0;
 					continue;
 				}
 
-				//==重新开始游戏逻辑==
 				if (input.input() == game::PlayerInput_InputType_RESPAWN) {
-					p->health = 5; // 恢复满血
-					p->score = 0;  // 重置分数
-					p->x = WINDOW_WIDTH / 2.0f - PLAYER_WIDTH_ESTIMATE / 2.0f; // 重置到中间
+					p->health = 5;
+					p->score = 0;
+					p->x = WINDOW_WIDTH / 2.0f - PLAYER_WIDTH_ESTIMATE / 2.0f;
 					p->y = WINDOW_HEIGHT - 100.0f;
-					continue; // 这一帧不需要做其他事了
+					p->game_start_time = std::chrono::steady_clock::now();
+					continue;
 				}
-				// 只有活着才能移动！
+				
 				if (p->health > 0)
 				{
-					// Object.h 里的 player speed 是 300，服务器每帧跑 33ms
-				// 300 * 0.033 ≈ 10 像素/帧
 					float move_speed = 250.0f * (SERVER_TICK_MS / 1000.0f);
 
 					if (input.input() == game::PlayerInput_InputType_UP)    p->y -= move_speed;
@@ -215,7 +230,6 @@ void session(std::shared_ptr<tcp::socket> socket)
 					if (input.input() == game::PlayerInput_InputType_LEFT)  p->x -= move_speed;
 					if (input.input() == game::PlayerInput_InputType_RIGHT) p->x += move_speed;
 
-					// 修正后的边界检查 (600x800)
 					if (p->x < 0) p->x = 0;
 					if (p->x > WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE) p->x = WINDOW_WIDTH - PLAYER_WIDTH_ESTIMATE;
 					if (p->y < 0) p->y = 0;
@@ -234,88 +248,86 @@ void session(std::shared_ptr<tcp::socket> socket)
 	}
 }
 
-// ---  广播循环 (物理计算核心) ---
 void broadcast_loop()
 {
-	int frame_count = 0;
-	int spawn_counter = 0; // 专门用来计时的变量，比直接取余数更安全
+	int spawn_counter = 0;
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(SERVER_TICK_MS));
 		float dt = SERVER_TICK_MS / 1000.0f;
-		frame_count++;
 		spawn_counter++;
 
-		// ==========================================
-		// [新增] 无尽风暴：动态难度计算系统
-		// 服务器每秒约 30 帧。每 300 帧 (约 10 秒) 难度提升 1 级！
-		// ==========================================
-		int difficulty_level = frame_count / 150;
+		int difficulty_level = 0;
+		int alive_player_count = 0;
+		
+		{
+			std::lock_guard<std::mutex> lock(g_mutex);
+			auto now = std::chrono::steady_clock::now();
+			
+			for (auto& pair : g_players)
+			{
+				if (pair.second->health > 0)
+				{
+					auto game_duration = std::chrono::duration_cast<std::chrono::seconds>(
+						now - pair.second->game_start_time).count();
+					difficulty_level += game_duration / 10;
+					alive_player_count++;
+				}
+			}
+			
+			if (alive_player_count > 0)
+			{
+				difficulty_level = difficulty_level / alive_player_count;
+			}
+		}
 
-		// 1. 动态生成频率：默认 60 帧，每升一级减 2 帧。最快缩短到 15 帧刷一只 (满屏怪)！
 		int current_spawn_rate = 60 - (difficulty_level * 2);
 		if (current_spawn_rate < 15) current_spawn_rate = 15;
-
-		// 2. 动态敌机射速：默认 2000ms，每升一级减 100ms。最快缩短到 500ms 射一次 (弹幕雨)！
 		int current_enemy_cooldown = 2000 - (difficulty_level * 200);
 		if (current_enemy_cooldown < 500) current_enemy_cooldown = 500;
-		// ==========================================
 
-
-		// A. 自动射击 & 子弹移动
 		{
 			std::lock_guard<std::mutex> lock(g_mutex);
 			auto now = std::chrono::steady_clock::now();
 
-			// 1. 自动射击
 			for (auto& pair : g_players)
 			{
 				auto player = pair.second;
-				// 死人不能开火！
 				if (player->health <= 0) continue;
 				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
 					now - player->last_shoot_time).count();
 
-				// 使用 Object.h 里的 Cooldown = 300
 				if (duration > PLAYER_SHOOT_COOLDOWN)
 				{
-				  
 					Bullet b;
 					b.id = g_bullet_next_id++;
 					b.x = player->x + (PLAYER_WIDTH_ESTIMATE - BULLET_WIDTH_ESTIMATE) / 2.0f;
 					b.y = player->y;
 					b.vx = 0;
-					b.vy = -PLAYER_BULLET_SPEED; // 向上
+					b.vy = -PLAYER_BULLET_SPEED;
 					b.type = 0;
-					b.angle = 0.0f; //  玩家子弹不用旋转
-					b.owned_id = player->id; // 记录是谁开的枪，方便后续加分
+					b.angle = 0.0f;
+					b.owned_id = player->id;
 					g_bullets.push_back(b);
 					player->last_shoot_time = now;
 				}
 			}
 
-			// 2. 敌机生成 (每隔一段时间生成一个)
-			//if (frame_count % ENEMY_SPAWN_RATE == 0)
 			if (spawn_counter >= current_spawn_rate)
 			{
 				spawn_counter = 0;
 				Enemy e;
 				e.id = g_enemy_next_id++;
-				e.x=dis(gen) *(WINDOW_WIDTH - ENEMY_WIDTH); // 随机生成在窗口内
-				e.y = -ENEMY_HEIGHT; // 从顶部出现
+				e.x=dis(gen) *(WINDOW_WIDTH - ENEMY_WIDTH);
+				e.y = -ENEMY_HEIGHT;
 				e.last_shoot_time = now;
 				g_enemies.push_back(e);
-
 			}
 
-			// 3.  敌机逻辑 (移动 + 开火)
 			for (auto it = g_enemies.begin(); it != g_enemies.end();)
 			{
-				// A. 移动
 				it->y += ENEMY_SPEED * dt;
-				// B. 开火 (瞄准玩家)
 				auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - it->last_shoot_time).count();
-				//if (duration > 2000)
 				if (duration > current_enemy_cooldown)
 				{
 					auto target = GetNearestPlayer(it->x, it->y);
@@ -323,36 +335,32 @@ void broadcast_loop()
 					{
 						Bullet b;
 						b.id = g_bullet_next_id++;
-						b.type = 1; // 敌人子弹
-						b.x = it->x + (ENEMY_WIDTH / 2) - (BULLET_WIDTH_ESTIMATE / 2); // 从敌机中心发出
-						b.y = it->y + ENEMY_HEIGHT; // 从敌机底部发出
+						b.type = 1;
+						b.x = it->x + (ENEMY_WIDTH / 2) - (BULLET_WIDTH_ESTIMATE / 2);
+						b.y = it->y + ENEMY_HEIGHT;
 
-						// 计算瞄准向量
 						float dx = (target->x + PLAYER_WIDTH_ESTIMATE / 2) - b.x;
 						float dy = (target->y + PLAYER_HEIGHT_ESTIMATE / 2) - b.y;
 						float len = std::sqrt(dx * dx + dy * dy);
 						if (len > 0) {
-							b.vx = (dx / len) * 300.0f; // 敌机子弹速度 300
+							b.vx = (dx / len) * 300.0f;
 							b.vy = (dy / len) * 300.0f;
 							b.angle = atan2(dy, dx) * 180.0f / 3.14159265f - 90.0f;
 						}
 						else {
 							b.vx = 0; b.vy = 300.0f;
-							b.angle = 180.0f; // [新增] 垂直朝下
+							b.angle = 180.0f;
 						}
 						g_bullets.push_back(b);
 						it->last_shoot_time = now;
-
 					}
 				}
-				if(it->y>WINDOW_HEIGHT) it = g_enemies.erase(it); // 超出底部则销毁
+				if(it->y>WINDOW_HEIGHT) it = g_enemies.erase(it);
 				else ++it;
 			}
 
-			// 4. 子弹移动 (支持斜着飞)
 			for (auto it = g_bullets.begin(); it != g_bullets.end(); ) {
 				if (it->vx == 0 && it->vy == 0) {
-					// 兼容旧代码，如果没有vx/vy
 					if (it->type == 0) it->y -= PLAYER_BULLET_SPEED * dt;
 					else it->y += 300.0f * dt;
 				}
@@ -367,15 +375,12 @@ void broadcast_loop()
 				else ++it;
 			}
 		}
-		// 5. 碰撞检测与伤害判定
-		// A. 子弹打中物体
 		for (auto& b : g_bullets)
 		{
 			if (!b.active) continue;
 
 			if (b.type == 0)
 			{
-				// 玩家子弹 -> 打敌人
 				for (auto& e : g_enemies)
 				{
 					if (!e.active) continue;
@@ -389,16 +394,14 @@ void broadcast_loop()
 							e.active = false;
 							if (g_players.find(b.owned_id) != g_players.end())
 							{
-								g_players[b.owned_id]->score += 10; // 玩家加分
+								g_players[b.owned_id]->score += 10;
 							}
-							// === 概率掉落加血包 ===
+							
 							if (dis(gen) < 0.25f) {
 								Item item;
 								item.id = g_item_next_id++;
-								// 从敌人中心掉落
 								item.x = e.x + ENEMY_WIDTH / 2.0f - ITEM_WIDTH / 2.0f;
 								item.y = e.y + ENEMY_HEIGHT / 2.0f - ITEM_HEIGHT / 2.0f;
-								// 随机方向
 								float random_angle = dis(gen) * 2 * 3.1415926f;
 								item.vx = cos(random_angle) * ITEM_SPEED;
 								item.vy = sin(random_angle) * ITEM_SPEED;
@@ -411,21 +414,20 @@ void broadcast_loop()
 			}
 			else if (b.type == 1)
 			{
-				// 敌机子弹 -> 打玩家
 				for (auto& pair : g_players)
 				{
 					auto p = pair.second;
 					if (p->health <= 0) continue;
 					if (CheckCollision(b.x, b.y, BULLET_WIDTH_ESTIMATE, BULLET_HEIGHT_ESTIMATE,
 						p->x, p->y, PLAYER_WIDTH_ESTIMATE, PLAYER_HEIGHT_ESTIMATE)) {
-						p->health -= 1;    // 玩家扣血
-						b.active = false;  // 子弹销毁
+						p->health -= 1;
+						b.active = false;
 						break;
 					}
 				}
 			}
 		}
-		// B. 敌机直接撞上玩家 (神风特攻)
+		
 		for (auto& e : g_enemies)
 		{
 			if (!e.active) continue;
@@ -436,21 +438,19 @@ void broadcast_loop()
 				if (p->health <= 0) continue;
 				if (CheckCollision(e.x, e.y, ENEMY_WIDTH, ENEMY_HEIGHT,
 					p->x, p->y, PLAYER_WIDTH_ESTIMATE, PLAYER_HEIGHT_ESTIMATE)) {
-					p->health -= 1;   // 玩家扣血
-					e.active = false; // 敌机坠毁
+					p->health -= 1;
+					e.active = false;
 					break;
 				}
 			}
 		}
-		//  道具移动与拾取逻辑
-		// ==========================================
+		
 		for (auto& item : g_items) {
 			if (!item.active) continue;
 
 			item.x += item.vx * dt;
 			item.y += item.vy * dt;
 
-			// 边缘反弹 (还原原本的逻辑)
 			if ((item.x < 0 || item.x + ITEM_WIDTH > WINDOW_WIDTH) && item.bounces_count > 0) {
 				item.vx = -item.vx;
 				item.bounces_count--;
@@ -460,38 +460,31 @@ void broadcast_loop()
 				item.bounces_count--;
 			}
 
-			// 飞出屏幕销毁
 			if (item.x + ITEM_WIDTH < 0 || item.x > WINDOW_WIDTH ||
 				item.y + ITEM_HEIGHT < 0 || item.y > WINDOW_HEIGHT) {
 				item.active = false;
 			}
 			else {
-				// 碰撞检测：玩家吃道具
 				for (auto& pair : g_players) {
 					auto p = pair.second;
 					if (p->health <= 0) continue;
 					if (CheckCollision(item.x, item.y, ITEM_WIDTH, ITEM_HEIGHT, p->x, p->y, PLAYER_WIDTH_ESTIMATE, PLAYER_HEIGHT_ESTIMATE)) {
-						item.active = false; // 道具被吃掉
-						p->health++;         // 回血
-						if (p->health > 5) p->health = 5; // 上限 5 滴血
-						p->score += 5;       // 吃道具加 5 分
+						item.active = false;
+						p->health++;
+						if (p->health > 5) p->health = 5;
+						p->score += 5;
 						break;
 					}
 				}
 			}
 		}
 
-		
+		g_bullets.erase(std::remove_if(g_bullets.begin(), g_bullets.end(),
+			[](const Bullet& b) { return !b.active; }), g_bullets.end());
+		g_enemies.erase(std::remove_if(g_enemies.begin(), g_enemies.end(),
+			[](const Enemy& e) { return !e.active; }), g_enemies.end());
+		g_items.erase(std::remove_if(g_items.begin(), g_items.end(), [](const Item& i) { return !i.active; }), g_items.end());
 
-		// C. 统一清理尸体
-			g_bullets.erase(std::remove_if(g_bullets.begin(), g_bullets.end(),
-				[](const Bullet& b) { return !b.active; }), g_bullets.end());
-			g_enemies.erase(std::remove_if(g_enemies.begin(), g_enemies.end(),
-				[](const Enemy& e) { return !e.active; }), g_enemies.end());
-			// 清理被吃掉或飞出屏幕的道具
-			g_items.erase(std::remove_if(g_items.begin(), g_items.end(), [](const Item& i) { return !i.active; }), g_items.end());
-
-		// 6. 打包发送
 		game::GameSnapshot snapshot;
 		std::vector<std::shared_ptr<tcp::socket>> sockets_to_send;
 		{
@@ -513,10 +506,8 @@ void broadcast_loop()
 				b_data->set_type(b.type);
 				b_data->set_angle(b.angle);
 				b_data->set_owned_id(b.owned_id);
-			
 			}
 
-			// Enemies
 			for (const auto& e : g_enemies)
 			{
 				auto ed = snapshot.add_enemies();
@@ -527,7 +518,6 @@ void broadcast_loop()
 				ed->set_health(e.health);
 			}
 
-			//Items
 			for (const auto& i : g_items) {
 				auto i_data = snapshot.add_items();
 				i_data->set_id(i.id);
@@ -535,14 +525,13 @@ void broadcast_loop()
 				i_data->set_y(i.y);
 				i_data->set_type(i.type);
 			}
-			//Leaderboard
+			
 			for (const auto& entry : g_leaderboard)
 			{
 				auto l_data = snapshot.add_leaderboard();
 				l_data->set_name(entry.name);
 				l_data->set_score(entry.score);
 			}
-
 		}
 
 		std::string data;
@@ -557,6 +546,8 @@ void broadcast_loop()
 int main()
 {
 	try {
+		LoadLeaderboard();
+
 		boost::asio::io_context io_context;
 		tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 8888));
 		std::cout << "[Server] Started on 8888. World: " << WINDOW_WIDTH << "x" << WINDOW_HEIGHT << std::endl;
